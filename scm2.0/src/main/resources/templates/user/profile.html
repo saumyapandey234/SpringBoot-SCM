@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{base :: parent(~{::#content},~{::title})}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${loggedInUser.name + ' | SCM'}">Profile page</title>
+  </head>
+  <body>
+    <div id="content">
+      <!-- if user is logged in :sidebar -->
+      <div data-th-if="${loggedInUser}">
+        <div data-th-replace="~{user/sidebar::user-sidebar}"></div>
+        <!-- //sidebar is file and user-sidebar is file name. -->
+      </div>
+      <div class="md:pl-62 pt-20" style="height: 1000px">
+        <h1 class="text-3xl font-bold">Welcome to Profile page</h1>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis
+          aliquid doloribus hic velit architecto nesciunt, quo quam nam dolore
+          iusto facilis voluptatum enim reiciendis at labore pariatur! Tenetur,
+          esse debitis facilis ullam impedit accusantium perspiciatis, optio
+          aperiam quod blanditiis quia, similique ea quisquam sit necessitatibus
+          alias assumenda non qui molestiae.
+        </p>
+      </div>
+    </div>
+    <script>
+      console.log("This is profile page");
+    </script>
+  </body>
+</html>

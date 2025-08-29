@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{base :: parent(~{::#content},~{::title})}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signup page</title>
+  </head>
+  <body>
+    <div id="content">
+      <div class="grid grid-cols-12 mt-4">
+        <div class="col-span-4 md:col-span-2 lg:col-span-4"></div>
+        <div class="col-span-12 md:col-span-8 lg:col-span-4">
+          <!-- 6 line space we have to take -->
+          <!-- card -->
+          <div
+            class="block p-6 bg-white border border-blue-200 rounded-lg shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+          >
+            <!-- //message here -->
+            <div data-th-replace="message::messagebox"></div>
+            <h5
+              class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+            >
+              Signup Here
+            </h5>
+            <p class="font-normal text-gray-400 dark:text-gray-400">
+              Start storing your contacts on cloud
+            </p>
+
+            <!-- form -->
+            <form
+              data-th-action="@{'/do-register'}"
+              method="post"
+              data-th-object="${userform}"
+              class="mt-5"
+              novalidate
+            >
+              <!-- //email -->
+              <div class="mb-3">
+                <label
+                  for="email"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >Enter your email</label
+                >
+                <input
+                  data-th-field="*{email}"
+                  type="email"
+                  id="email"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Email here"
+                  required
+                />
+                <p
+                  data-th-if="${#fields.hasErrors('email')}"
+                  data-th-errors="*{email}"
+                  class="text-red-600 px-2 py-2"
+                ></p>
+              </div>
+              <!-- //name -->
+              <div class="mb-3">
+                <label
+                  for="name"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >Enter your name</label
+                >
+                <input
+                  data-th-field="*{name}"
+                  type="text"
+                  id="name"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Name here"
+                  required
+                />
+
+                <p
+                  data-th-if="${#fields.hasErrors('name')}"
+                  data-th-errors="*{name}"
+                  class="text-red-600 px-2 py-2"
+                >
+                  User is required
+                </p>
+              </div>
+
+              <!-- //password -->
+              <div class="mb-3">
+                <label
+                  for="password"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >New password</label
+                >
+                <input
+                  data-th-field="*{password}"
+                  type="password"
+                  id="password"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  required
+                />
+
+                <p
+                  data-th-if="${#fields.hasErrors('password')}"
+                  data-th-errors="*{password}"
+                  class="text-red-600 px-2 py-2"
+                >
+                  Password is required
+                </p>
+              </div>
+
+              <!-- //phone number -->
+              <div class="mb-3">
+                <label
+                  for="phone"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >Phone Number</label
+                >
+                <input
+                  data-th-field="*{phoneNumber}"
+                  type="tel"
+                  id="phone"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  required
+                />
+
+                <p
+                  data-th-if="${#fields.hasErrors('phoneNumber')}"
+                  data-th-errors="*{phoneNumber}"
+                  class="text-red-600 px-2 py-2"
+                >
+                  Phone number is required
+                </p>
+              </div>
+
+              <!-- //About -->
+              <div class="mb-3">
+                <label
+                  for="about"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >Your message</label
+                >
+                <textarea
+                  data-th-field="*{about}"
+                  id="about"
+                  rows="4"
+                  class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Write your thoughts here..."
+                ></textarea>
+
+                <p
+                  data-th-if="${#fields.hasErrors('about')}"
+                  data-th-errors="*{about}"
+                  class="text-red-600 px-2 py-2"
+                >
+                  About is required
+                </p>
+              </div>
+
+              <div class="flex items-start mb-5">
+                <div class="flex items-center h-5">
+                  <input
+                    id="remember"
+                    type="checkbox"
+                    value=""
+                    class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
+                  />
+                </div>
+                <label
+                  for="remember"
+                  class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >Remember me</label
+                >
+              </div>
+
+              <!-- Button -->
+              <div class="flex justify-center gap-4 mt-4">
+                <button
+                  type="submit"
+                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  Signup
+                </button>
+
+                <button
+                  type="reset"
+                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  Reset
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      console.log("Signup page");
+    </script>
+  </body>
+</html>

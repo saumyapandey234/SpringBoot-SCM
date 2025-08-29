@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  th:fragment="parent(content,title)"
+  xmlns:th="http://www.thymeleaf.org"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-th-replace="${title}">SCM</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- font font-awesome -->
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+    />
+
+    <!-- Add inside <head> before </head> -->
+    <style>
+      html.light {
+        background: #fff;
+        color: #222;
+      }
+      html.dark {
+        background: #18181b;
+        color: #fafafa;
+      }
+      /* Example for buttons and other elements */
+      body,
+      button,
+      input {
+        transition: background 0.3s, color 0.3s;
+      }
+      html.dark button {
+        background: #222;
+        color: #fafafa;
+      }
+      html.light button {
+        background: #fafafa;
+        color: #222;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- common header -->
+
+    <!-- if user is logged in via any social account or any local db account :navbar-->
+
+    <div data-th-if="${loggedInUser}">
+      <div data-th-replace="~{user/user_navbar::user-navbar}"></div>
+    </div>
+
+    <!-- if user is not logged in -->
+
+    <div data-th-unless="${loggedInUser}">
+      <div data-th-replace="~{navbar::navbar}"></div>
+    </div>
+
+    <div class="p-4">
+      <section data-th-replace="${content}"></section>
+    </div>
+
+    <!-- flowbite content -->
+
+    <!-- common footer -->
+    <!-- <footer class="p-4">
+      <p>Footer:Learn code with Saumya</p>
+    </footer> -->
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <script data-th-src="@{'/js/script.js'}"></script>
+  </body>
+</html>
