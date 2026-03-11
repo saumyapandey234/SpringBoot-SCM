@@ -41,21 +41,22 @@ jobs:
           script: |
             pkill -f "scm2.0" || true
             sleep 2
-            nohup java -jar /home/ubuntu/app/*.jar \
-              --spring.datasource.url=${{ secrets.DB_URL }} \
-              --spring.datasource.username=${{ secrets.DB_USERNAME }} \
-              --spring.datasource.password=${{ secrets.DB_PASSWORD }} \
-              --GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-              --GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-              --GITHUB_CLIENT_ID=${{ secrets.GIT_CLIENT_ID }} \
-              --GITHUB_CLIENT_SECRET=${{ secrets.GIT_CLIENT_SECRET }} \
-              --CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} \
-              --CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} \
-              --CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} \
-              --RAZORPAY_KEY_ID=${{ secrets.RAZORPAY_KEY_ID }} \
-              --RAZORPAY_KEY_SECRET=${{ secrets.RAZORPAY_KEY_SECRET }} \
-              --EMAILJS_PUBLIC_KEY=${{ secrets.EMAILJS_PUBLIC_KEY }} \
-              --EMAILJS_SERVICE_ID=${{ secrets.EMAILJS_SERVICE_ID }} \
-              --EMAILJS_TEMPLATE_ID=${{ secrets.EMAILJS_TEMPLATE_ID }} \
-              > /home/ubuntu/app/app.log 2>&1 &
+            mkdir -p /home/ubuntu/app
+            export DB_URL="${{ secrets.DB_URL }}"
+            export DB_USERNAME="${{ secrets.DB_USERNAME }}"
+            export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+            export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
+            export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
+            export GITHUB_CLIENT_ID="${{ secrets.GIT_CLIENT_ID }}"
+            export GITHUB_CLIENT_SECRET="${{ secrets.GIT_CLIENT_SECRET }}"
+            export CLOUDINARY_CLOUD_NAME="${{ secrets.CLOUDINARY_CLOUD_NAME }}"
+            export CLOUDINARY_API_KEY="${{ secrets.CLOUDINARY_API_KEY }}"
+            export CLOUDINARY_API_SECRET="${{ secrets.CLOUDINARY_API_SECRET }}"
+            export RAZORPAY_KEY_ID="${{ secrets.RAZORPAY_KEY_ID }}"
+            export RAZORPAY_KEY_SECRET="${{ secrets.RAZORPAY_KEY_SECRET }}"
+            export EMAILJS_PUBLIC_KEY="${{ secrets.EMAILJS_PUBLIC_KEY }}"
+            export EMAILJS_SERVICE_ID="${{ secrets.EMAILJS_SERVICE_ID }}"
+            export EMAILJS_TEMPLATE_ID="${{ secrets.EMAILJS_TEMPLATE_ID }}"
+            nohup java -jar /home/ubuntu/app/*.jar > /home/ubuntu/app/app.log 2>&1 &
+            disown
             echo "Deployed successfully!"
