@@ -85,6 +85,7 @@ public class SecurityConfig {
     httpSecurity.authorizeHttpRequests(authorize -> {
       // authorize.requestMatchers("/home", "/register", "/service").permitAll();
       authorize.requestMatchers("/user/**").authenticated();
+      authorize.requestMatchers("/payment/**").authenticated();
       authorize.anyRequest().permitAll();
     });
 

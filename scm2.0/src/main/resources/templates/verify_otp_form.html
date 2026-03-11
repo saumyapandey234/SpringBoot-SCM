@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify OTP - Smart Contact Manager</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f9f9f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .form-container {
+        background: #fff;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        width: 300px;
+      }
+
+      h1 {
+        font-size: 1.2rem;
+        text-align: center;
+        margin-bottom: 15px;
+        color: #333;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        background: #333;
+        color: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <h1>Smart Contact Manager</h1>
+      <form id="otpForm" th:action="@{/verify-otp}" method="post">
+        <div>
+          <label for="otp">Enter your OTP</label>
+          <input type="text" id="otp" name="otp" required />
+        </div>
+        <div>
+          <button type="submit">Verify OTP</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

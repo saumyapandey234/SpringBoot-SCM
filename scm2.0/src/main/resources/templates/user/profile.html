@@ -1,31 +1,457 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" th:replace="~{base :: parent(~{::#content},~{::title})}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title th:text="${loggedInUser.name + ' | SCM'}">Profile page</title>
+    <title>Profile | SCM</title>
   </head>
   <body>
     <div id="content">
-      <!-- if user is logged in :sidebar -->
-      <div data-th-if="${loggedInUser}">
-        <div data-th-replace="~{user/sidebar::user-sidebar}"></div>
-        <!-- //sidebar is file and user-sidebar is file name. -->
+      <style>
+        *,
+        *::before,
+        *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        :root {
+          --surface: #f8f9fc;
+          --border: rgba(0, 0, 0, 0.08);
+          --accent: #3b7ef8;
+          --accent2: #8b5cf6;
+          --accent3: #10b981;
+          --text: #0f172a;
+          --muted: #64748b;
+        }
+        body {
+          background: #fff !important;
+          color: var(--text) !important;
+          font-family: "DM Sans", sans-serif;
+          font-weight: 300;
+        }
+
+        .profile-wrap {
+          margin-left: 240px;
+          padding: 5rem 2.5rem 4rem;
+          min-height: 100vh;
+          max-width: 1100px;
+        }
+
+        .pg-label {
+          font-size: 0.72rem;
+          font-weight: 600;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--accent);
+          margin-bottom: 0.4rem;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .pg-label::before {
+          content: "";
+          width: 20px;
+          height: 1.5px;
+          background: var(--accent);
+        }
+        .pg-title {
+          font-family: "Syne", sans-serif;
+          font-size: 2rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          color: var(--text);
+          margin-bottom: 2rem;
+        }
+
+        .avatar-card {
+          display: flex;
+          align-items: center;
+          gap: 2rem;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          padding: 2rem 2.4rem;
+          margin-bottom: 1.5rem;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+          position: relative;
+          overflow: hidden;
+        }
+        .avatar-card::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(
+            90deg,
+            var(--accent),
+            var(--accent2),
+            var(--accent3)
+          );
+        }
+
+        .av-circle {
+          width: 76px;
+          height: 76px;
+          border-radius: 50%;
+          flex-shrink: 0;
+          background: linear-gradient(135deg, var(--accent), var(--accent2));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: "Syne", sans-serif;
+          font-size: 1.7rem;
+          font-weight: 700;
+          color: #fff;
+          border: 3px solid #fff;
+          box-shadow: 0 4px 16px rgba(59, 126, 248, 0.3);
+        }
+        .av-img {
+          width: 76px;
+          height: 76px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 3px solid #fff;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+          flex-shrink: 0;
+        }
+        .av-name {
+          font-family: "Syne", sans-serif;
+          font-size: 1.3rem;
+          font-weight: 700;
+          color: var(--text);
+          margin-bottom: 0.2rem;
+        }
+        .av-email {
+          font-size: 0.88rem;
+          color: var(--muted);
+          margin-bottom: 0.7rem;
+        }
+
+        .av-badges {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+        .av-badge {
+          padding: 0.25rem 0.8rem;
+          border-radius: 100px;
+          font-size: 0.7rem;
+          font-weight: 500;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+        }
+        .badge-green {
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+          border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .badge-blue {
+          background: rgba(59, 126, 248, 0.1);
+          color: var(--accent);
+          border: 1px solid rgba(59, 126, 248, 0.2);
+        }
+        .badge-purple {
+          background: rgba(139, 92, 246, 0.1);
+          color: var(--accent2);
+          border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .badge-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: currentColor;
+        }
+
+        .edit-btn {
+          margin-left: auto;
+          flex-shrink: 0;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: var(--accent);
+          color: #fff !important;
+          border: none;
+          padding: 0.7rem 1.6rem;
+          border-radius: 10px;
+          font-family: "DM Sans", sans-serif;
+          font-size: 0.86rem;
+          font-weight: 500;
+          text-decoration: none;
+          transition: all 0.25s;
+          box-shadow: 0 4px 16px rgba(59, 126, 248, 0.3);
+        }
+        .edit-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(59, 126, 248, 0.4);
+        }
+
+        .stats-row {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+        .stat-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          padding: 1.3rem;
+          text-align: center;
+          transition:
+            box-shadow 0.2s,
+            transform 0.2s;
+        }
+        .stat-card:hover {
+          box-shadow: 0 6px 20px rgba(59, 126, 248, 0.1);
+          transform: translateY(-2px);
+        }
+        .stat-num {
+          font-family: "Syne", sans-serif;
+          font-size: 1.8rem;
+          font-weight: 800;
+          background: linear-gradient(135deg, var(--accent), var(--accent2));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          line-height: 1;
+          margin-bottom: 0.3rem;
+        }
+        .stat-lbl {
+          font-size: 0.72rem;
+          color: var(--muted);
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .sec-divider {
+          height: 1px;
+          background: var(--border);
+          margin: 1.5rem 0;
+        }
+        .sec-head {
+          font-family: "Syne", sans-serif;
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: var(--text);
+          margin-bottom: 1rem;
+        }
+
+        .info-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+        .info-grid.full {
+          grid-template-columns: 1fr;
+        }
+        .info-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          padding: 1.3rem 1.6rem;
+          transition:
+            box-shadow 0.2s,
+            transform 0.2s;
+        }
+        .info-card:hover {
+          box-shadow: 0 6px 20px rgba(59, 126, 248, 0.08);
+          transform: translateY(-2px);
+        }
+        .card-icon {
+          font-size: 1.1rem;
+          margin-bottom: 0.5rem;
+          display: block;
+        }
+        .card-label {
+          font-size: 0.68rem;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--muted);
+          margin-bottom: 0.3rem;
+        }
+        .card-value {
+          font-size: 0.95rem;
+          font-weight: 500;
+          color: var(--text);
+          word-break: break-word;
+        }
+
+        @media (max-width: 768px) {
+          .profile-wrap {
+            margin-left: 0;
+            padding: 4.5rem 1.2rem 3rem;
+          }
+          .info-grid {
+            grid-template-columns: 1fr;
+          }
+          .stats-row {
+            grid-template-columns: 1fr 1fr;
+          }
+          .avatar-card {
+            flex-direction: column;
+            text-align: center;
+          }
+          .av-badges {
+            justify-content: center;
+          }
+          .edit-btn {
+            margin-left: 0;
+          }
+        }
+      </style>
+
+      <!-- Sidebar -->
+      <div data-th-replace="~{user/sidebar::user-sidebar}"></div>
+
+      <!-- Profile content -->
+      <div class="profile-wrap">
+        <div class="pg-label">Account</div>
+        <h1 class="pg-title">My Profile</h1>
+
+        <!-- Avatar card -->
+        <div class="avatar-card">
+          <!-- Avatar: initials only until picture field name is confirmed -->
+          <div class="av-circle">
+            <span
+              th:if="${loggedInUser.name != null and !#strings.isEmpty(loggedInUser.name)}"
+              th:text="${#strings.toUpperCase(#strings.substring(loggedInUser.name, 0, (loggedInUser.name.length() >= 2 ? 2 : 1)))}"
+              >U</span
+            >
+            <span
+              th:if="${loggedInUser.name == null or #strings.isEmpty(loggedInUser.name)}"
+              >U</span
+            >
+          </div>
+
+          <div>
+            <div
+              class="av-name"
+              th:text="${loggedInUser.name  ?: 'Unknown User'}"
+            >
+              User
+            </div>
+            <div class="av-email" th:text="${loggedInUser.email ?: 'No email'}">
+              email
+            </div>
+            <div class="av-badges">
+              <span class="av-badge badge-green"
+                ><span class="badge-dot"></span> Active</span
+              >
+              <span
+                class="av-badge badge-blue"
+                th:text="${loggedInUser.provider ?: 'Email'}"
+                >Email</span
+              >
+              <span class="av-badge badge-purple">Free Plan</span>
+            </div>
+          </div>
+
+          <!-- <a th:href="@{/user/update}" href="/user/update" class="edit-btn">
+            <svg
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+            Edit Profile
+          </a>
+        </div> -->
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-num" th:text="${totalContacts ?: '0'}">0</div>
+            <div class="stat-lbl">Total Contacts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" th:text="${favouriteContacts ?: '0'}">0</div>
+            <div class="stat-lbl">Favourites</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">Free</div>
+            <div class="stat-lbl">Current Plan</div>
+          </div>
+        </div>
+
+        <div class="sec-divider"></div>
+        <div class="sec-head">Personal Information</div>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <span class="card-icon">👤</span>
+            <div class="card-label">Full Name</div>
+            <div
+              class="card-value"
+              th:text="${loggedInUser.name ?: 'Not provided'}"
+            >
+              —
+            </div>
+          </div>
+          <div class="info-card">
+            <span class="card-icon">📧</span>
+            <div class="card-label">Email Address</div>
+            <div
+              class="card-value"
+              th:text="${loggedInUser.email ?: 'Not provided'}"
+            >
+              —
+            </div>
+          </div>
+          <div class="info-card">
+            <span class="card-icon">📱</span>
+            <div class="card-label">Phone Number</div>
+            <div
+              class="card-value"
+              th:text="${(loggedInUser.phoneNumber != null and !#strings.isEmpty(loggedInUser.phoneNumber)) ? loggedInUser.phoneNumber : 'Not added'}"
+            >
+              —
+            </div>
+          </div>
+          <div class="info-card">
+            <span class="card-icon">🔗</span>
+            <div class="card-label">Login Provider</div>
+            <div
+              class="card-value"
+              th:text="${loggedInUser.provider ?: 'Email / Password'}"
+            >
+              —
+            </div>
+          </div>
+        </div>
+
+        <div class="info-grid full">
+          <div class="info-card">
+            <span class="card-icon">📝</span>
+            <div class="card-label">About</div>
+            <div
+              class="card-value"
+              th:text="${(loggedInUser.about != null and !#strings.isEmpty(loggedInUser.about)) ? loggedInUser.about : 'No bio added yet. Click Edit Profile to add one.'}"
+            >
+              —
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="md:pl-62 pt-20" style="height: 1000px">
-        <h1 class="text-3xl font-bold">Welcome to Profile page</h1>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis
-          aliquid doloribus hic velit architecto nesciunt, quo quam nam dolore
-          iusto facilis voluptatum enim reiciendis at labore pariatur! Tenetur,
-          esse debitis facilis ullam impedit accusantium perspiciatis, optio
-          aperiam quod blanditiis quia, similique ea quisquam sit necessitatibus
-          alias assumenda non qui molestiae.
-        </p>
-      </div>
+
+      <script>
+        console.log("Profile loaded ok");
+      </script>
     </div>
-    <script>
-      console.log("This is profile page");
-    </script>
   </body>
 </html>

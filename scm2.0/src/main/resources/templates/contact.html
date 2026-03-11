@@ -1,24 +1,708 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" th:replace="~{base :: parent(~{::#content},~{::title})}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contact page</title>
+    <title>Contact — Smart Contact Manager</title>
   </head>
   <body>
     <div id="content">
-      <h1>Welcome to Contact page</h1>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis
-        aliquid doloribus hic velit architecto nesciunt, quo quam nam dolore
-        iusto facilis voluptatum enim reiciendis at labore pariatur! Tenetur,
-        esse debitis facilis ullam impedit accusantium perspiciatis, optio
-        aperiam quod blanditiis quia, similique ea quisquam sit necessitatibus
-        alias assumenda non qui molestiae.
-      </p>
+      <style>
+        *,
+        *::before,
+        *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        :root {
+          --surface: #f8f9fc;
+          --border: rgba(0, 0, 0, 0.08);
+          --accent: #3b7ef8;
+          --accent2: #8b5cf6;
+          --accent3: #10b981;
+          --text: #0f172a;
+          --muted: #64748b;
+        }
+        body {
+          background: #fff !important;
+          color: var(--text) !important;
+          font-family: "DM Sans", sans-serif;
+          font-weight: 300;
+          overflow-x: hidden;
+          cursor: none;
+        }
+        .cursor {
+          width: 12px;
+          height: 12px;
+          background: var(--accent);
+          border-radius: 50%;
+          position: fixed;
+          top: 0;
+          left: 0;
+          pointer-events: none;
+          z-index: 9999;
+          transform: translate(-50%, -50%);
+        }
+        .cursor-ring {
+          width: 36px;
+          height: 36px;
+          border: 1.5px solid rgba(59, 126, 248, 0.45);
+          border-radius: 50%;
+          position: fixed;
+          top: 0;
+          left: 0;
+          pointer-events: none;
+          z-index: 9998;
+          transition:
+            transform 0.35s ease,
+            width 0.2s,
+            height 0.2s;
+          transform: translate(-50%, -50%);
+        }
+        body::before {
+          content: "";
+          position: fixed;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(59, 126, 248, 0.05) 1px, transparent 1px),
+            linear-gradient(
+              90deg,
+              rgba(59, 126, 248, 0.05) 1px,
+              transparent 1px
+            );
+          background-size: 60px 60px;
+          pointer-events: none;
+          z-index: 0;
+        }
+        #content {
+          position: relative;
+          z-index: 2;
+        }
+
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(22px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes orbFloat {
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-26px);
+          }
+        }
+        @keyframes pulse {
+          0%,
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.4;
+            transform: scale(0.75);
+          }
+        }
+        @keyframes gradShift {
+          0%,
+          100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+
+        .scroll-reveal {
+          opacity: 0;
+          transform: translateY(26px);
+          transition:
+            opacity 0.6s ease,
+            transform 0.6s ease;
+        }
+        .scroll-reveal.visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        /* ── Header ── */
+        .pg-header {
+          min-height: 48vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 7rem 2rem 4rem;
+          position: relative;
+          overflow: hidden;
+        }
+        .orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(90px);
+          pointer-events: none;
+          animation: orbFloat 8s ease-in-out infinite;
+        }
+        .orb-a {
+          width: 440px;
+          height: 440px;
+          background: radial-gradient(
+            circle,
+            rgba(59, 126, 248, 0.11),
+            transparent 70%
+          );
+          top: -100px;
+          left: -120px;
+        }
+        .orb-b {
+          width: 340px;
+          height: 340px;
+          background: radial-gradient(
+            circle,
+            rgba(139, 92, 246, 0.09),
+            transparent 70%
+          );
+          bottom: -60px;
+          right: -80px;
+          animation-delay: -4s;
+        }
+
+        .pg-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(59, 126, 248, 0.08);
+          border: 1px solid rgba(59, 126, 248, 0.2);
+          border-radius: 100px;
+          padding: 6px 16px;
+          font-size: 0.78rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--accent);
+          margin-bottom: 1.8rem;
+          opacity: 0;
+          animation: fadeUp 0.6s ease 0.2s forwards;
+        }
+        .badge-dot {
+          width: 6px;
+          height: 6px;
+          background: var(--accent3);
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+        }
+
+        .pg-title {
+          font-family: "Syne", sans-serif;
+          font-size: clamp(2.8rem, 7vw, 5rem);
+          font-weight: 800;
+          line-height: 1;
+          letter-spacing: -0.03em;
+          margin-bottom: 1.2rem;
+          opacity: 0;
+          animation: fadeUp 0.7s ease 0.35s forwards;
+        }
+        .pg-title .l1 {
+          display: block;
+          color: var(--text);
+        }
+        .pg-title .l2 {
+          display: block;
+          background: linear-gradient(
+            135deg,
+            var(--accent),
+            var(--accent2),
+            var(--accent3)
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          background-size: 200% 200%;
+          animation:
+            gradShift 4s ease infinite,
+            fadeUp 0.7s ease 0.35s forwards;
+        }
+        .pg-sub {
+          font-size: 1rem;
+          color: var(--muted);
+          max-width: 440px;
+          line-height: 1.75;
+          font-weight: 300;
+          opacity: 0;
+          animation: fadeUp 0.7s ease 0.5s forwards;
+        }
+
+        /* ── Section ── */
+        .scm-sec {
+          padding: 5rem 2rem;
+          max-width: 1160px;
+          margin: 0 auto;
+        }
+        .scm-divider {
+          height: 1px;
+          background: var(--border);
+          max-width: 1160px;
+          margin: 0 auto;
+        }
+        .sec-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          color: var(--accent);
+          font-size: 0.78rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          font-weight: 500;
+          margin-bottom: 0.8rem;
+        }
+        .sec-tag::before {
+          content: "";
+          display: block;
+          width: 24px;
+          height: 1.5px;
+          background: var(--accent);
+        }
+        .sec-title {
+          font-family: "Syne", sans-serif;
+          font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+          font-weight: 700;
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          margin-bottom: 0.8rem;
+          color: var(--text);
+        }
+        .sec-sub {
+          color: var(--muted);
+          font-size: 0.95rem;
+          line-height: 1.7;
+          font-weight: 300;
+          max-width: 460px;
+          margin-bottom: 2.5rem;
+        }
+
+        /* ── Contact grid ── */
+        .contact-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 3rem;
+          align-items: start;
+        }
+
+        /* Info cards */
+        .info-list {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .info-card {
+          display: flex;
+          align-items: center;
+          gap: 1.2rem;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          padding: 1.4rem 1.6rem;
+          transition:
+            box-shadow 0.25s,
+            transform 0.25s;
+        }
+        .info-card:hover {
+          box-shadow: 0 6px 24px rgba(59, 126, 248, 0.1);
+          transform: translateY(-2px);
+        }
+        .info-icon {
+          width: 44px;
+          height: 44px;
+          border-radius: 10px;
+          background: rgba(59, 126, 248, 0.08);
+          border: 1px solid rgba(59, 126, 248, 0.12);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.2rem;
+          flex-shrink: 0;
+        }
+        .info-label {
+          font-size: 0.72rem;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: var(--muted);
+          margin-bottom: 0.2rem;
+        }
+        .info-value {
+          font-size: 0.95rem;
+          font-weight: 500;
+          color: var(--text);
+        }
+
+        /* Form */
+        .contact-form {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          padding: 2.5rem;
+        }
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+          margin-bottom: 1rem;
+        }
+        .form-group:last-child {
+          margin-bottom: 0;
+        }
+        label {
+          font-size: 0.78rem;
+          font-weight: 500;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: var(--muted);
+        }
+        input,
+        textarea {
+          background: #fff;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          padding: 0.8rem 1rem;
+          font-family: "DM Sans", sans-serif;
+          font-size: 0.92rem;
+          color: var(--text);
+          outline: none;
+          transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
+          width: 100%;
+          resize: none;
+        }
+        input:focus,
+        textarea:focus {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px rgba(59, 126, 248, 0.1);
+        }
+        textarea {
+          height: 110px;
+        }
+
+        .btn-primary {
+          background: var(--accent);
+          color: #fff;
+          border: none;
+          padding: 0.85rem 2rem;
+          border-radius: 10px;
+          font-family: "DM Sans", sans-serif;
+          font-size: 0.9rem;
+          font-weight: 500;
+          cursor: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.25s;
+          box-shadow: 0 4px 20px rgba(59, 126, 248, 0.35);
+          width: 100%;
+          justify-content: center;
+        }
+        .btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 28px rgba(59, 126, 248, 0.45);
+        }
+
+        @media (max-width: 768px) {
+          .contact-grid {
+            grid-template-columns: 1fr;
+          }
+          .form-row {
+            grid-template-columns: 1fr;
+          }
+        }
+        @media (max-width: 600px) {
+          .scm-sec {
+            padding: 3.5rem 1.5rem;
+          }
+          .pg-header {
+            padding: 5rem 1.5rem 3rem;
+          }
+          .contact-form {
+            padding: 1.8rem;
+          }
+        }
+      </style>
+
+      <div class="cursor" id="cursor"></div>
+      <div class="cursor-ring" id="cursorRing"></div>
+
+      <!-- Header -->
+      <section class="pg-header">
+        <div class="orb orb-a"></div>
+        <div class="orb orb-b"></div>
+        <div class="pg-badge"><span class="badge-dot"></span> Get in Touch</div>
+        <h1 class="pg-title">
+          <span class="l1">Say Hello,</span>
+          <span class="l2">We're Listening.</span>
+        </h1>
+        <p class="pg-sub">
+          Have a question or feedback about SCM? Drop a message — it's a small
+          project but every message matters.
+        </p>
+      </section>
+
+      <div class="scm-divider"></div>
+
+      <!-- Contact Section -->
+      <section class="scm-sec">
+        <div class="contact-grid">
+          <!-- Left: info -->
+          <div class="scroll-reveal">
+            <div class="sec-tag">Contact Info</div>
+            <h2 class="sec-title">Reach out<br />anytime.</h2>
+            <p class="sec-sub">
+              This is a personal learning project. Feel free to reach out with
+              questions, suggestions, or just to say hi.
+            </p>
+
+            <div class="info-list">
+              <div class="info-card">
+                <div class="info-icon">📧</div>
+                <div>
+                  <div class="info-label">Email</div>
+                  <div class="info-value">saumya1617pandey@gmail.com</div>
+                </div>
+              </div>
+              <div class="info-card">
+                <div class="info-icon">🐙</div>
+                <div>
+                  <div class="info-label">GitHub</div>
+                  <div class="info-value">saumyapandey456</div>
+                </div>
+              </div>
+              <div class="info-card">
+                <div class="info-icon">⚡</div>
+                <div>
+                  <div class="info-label">Response Time</div>
+                  <div class="info-value">Usually within 24 hours</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: form -->
+          <div class="scroll-reveal" style="transition-delay: 0.15s">
+            <div class="contact-form">
+              <div class="sec-tag">Send a Message</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fname">First Name</label>
+                  <input type="text" id="fname" placeholder="Arjun" />
+                </div>
+                <div class="form-group">
+                  <label for="lname">Last Name</label>
+                  <input type="text" id="lname" placeholder="Kumar" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="you@example.com" />
+              </div>
+              <div class="form-group">
+                <label for="msg">Message</label>
+                <textarea
+                  id="msg"
+                  placeholder="Your message here..."
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <button class="btn-primary" onclick="handleSubmit()">
+                  <svg
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                  Send Message
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- REPLACE your existing <script> block with this entire block -->
+
+      <!-- Step 1: Add EmailJS SDK just before your script -->
+      <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+      <script th:inline="javascript">
+        // ── YOUR 3 KEYS — paste here ──────────────────────────────
+        const EMAILJS_PUBLIC_KEY = "[(${emailjsPublicKey})]";
+        const EMAILJS_SERVICE_ID = "[(${emailjsServiceId})]";
+        const EMAILJS_TEMPLATE_ID = "[(${emailjsTemplateId})]";
+
+        // Init EmailJS
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+        // ─────────────────────────────────────────────────────────
+
+        // Cursor
+        const cursor = document.getElementById("cursor");
+        const ring = document.getElementById("cursorRing");
+        let mx = 0,
+          my = 0,
+          rx = 0,
+          ry = 0;
+        document.addEventListener("mousemove", (e) => {
+          mx = e.clientX;
+          my = e.clientY;
+          cursor.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+        });
+        (function loop() {
+          rx += (mx - rx) * 0.12;
+          ry += (my - ry) * 0.12;
+          ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+          requestAnimationFrame(loop);
+        })();
+        document.querySelectorAll("a,button,.info-card").forEach((el) => {
+          el.addEventListener("mouseenter", () => {
+            ring.style.width = "52px";
+            ring.style.height = "52px";
+          });
+          el.addEventListener("mouseleave", () => {
+            ring.style.width = "36px";
+            ring.style.height = "36px";
+          });
+        });
+
+        // Scroll reveal
+        const obs = new IntersectionObserver(
+          (es) =>
+            es.forEach((e) => {
+              if (e.isIntersecting) e.target.classList.add("visible");
+            }),
+          { threshold: 0.1 },
+        );
+        document
+          .querySelectorAll(".scroll-reveal")
+          .forEach((el) => obs.observe(el));
+
+        // Send message via EmailJS
+        function handleSubmit() {
+          const fname = document.getElementById("fname").value.trim();
+          const lname = document.getElementById("lname").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const msg = document.getElementById("msg").value.trim();
+          const btn = document.querySelector(".btn-primary");
+
+          // Validation
+          if (!fname || !email || !msg) {
+            showToast("⚠️ Please fill in all required fields.", "warn");
+            return;
+          }
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showToast("⚠️ Please enter a valid email address.", "warn");
+            return;
+          }
+
+          // Loading state on button
+          btn.disabled = true;
+          btn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Sending...`;
+
+          // These variable names MUST match your EmailJS template exactly
+          const templateParams = {
+            name: fname + " " + lname, // → {{name}} in your template
+            email: email, // → {{email}} in Reply To
+            message: msg, // → {{message}} in your template
+            title: "SCM Contact Form", // → {{title}} in subject line
+            time: new Date().toLocaleString("en-IN", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            }), // → {{time}}
+          };
+
+          emailjs
+            .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+            .then(() => {
+              showToast(
+                "✅ Message sent! I'll get back to you soon.",
+                "success",
+              );
+              // Clear all fields
+              document.getElementById("fname").value = "";
+              document.getElementById("lname").value = "";
+              document.getElementById("email").value = "";
+              document.getElementById("msg").value = "";
+            })
+            .catch((err) => {
+              console.error("EmailJS error:", err);
+              showToast("❌ Something went wrong. Please try again.", "error");
+            })
+            .finally(() => {
+              btn.disabled = false;
+              btn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Send Message`;
+            });
+        }
+
+        // Toast notification
+        function showToast(message, type) {
+          const existing = document.getElementById("scm-toast");
+          if (existing) existing.remove();
+
+          const colors = {
+            success: {
+              bg: "#0f172a",
+              border: "rgba(16,185,129,.4)",
+              dot: "#10b981",
+            },
+            warn: {
+              bg: "#0f172a",
+              border: "rgba(245,158,11,.4)",
+              dot: "#f59e0b",
+            },
+            error: {
+              bg: "#0f172a",
+              border: "rgba(239,68,68,.4)",
+              dot: "#ef4444",
+            },
+          };
+          const c = colors[type] || colors.success;
+
+          const toast = document.createElement("div");
+          toast.id = "scm-toast";
+          toast.style.cssText = `
+      position:fixed; bottom:2rem; right:2rem;
+      background:${c.bg}; border:1px solid ${c.border};
+      color:#fff; padding:1rem 1.6rem; border-radius:14px;
+      font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:500;
+      box-shadow:0 8px 30px rgba(0,0,0,.25); z-index:9999;
+      display:flex; align-items:center; gap:10px;
+      animation:slideUp .35s ease;
+    `;
+          toast.innerHTML = `<span style="color:${c.dot};font-size:1.1rem">●</span> ${message}`;
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 4500);
+        }
+
+        // Keyframes for spinner + toast
+        const s = document.createElement("style");
+        s.textContent = `
+    @keyframes spin     { to { transform: rotate(360deg); } }
+    @keyframes slideUp  { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+  `;
+        document.head.appendChild(s);
+      </script>
     </div>
-    <script>
-      console.log("Contactpage");
-    </script>
   </body>
 </html>

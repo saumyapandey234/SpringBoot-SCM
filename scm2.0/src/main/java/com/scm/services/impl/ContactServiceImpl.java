@@ -53,11 +53,6 @@ public class ContactServiceImpl implements ContactService {
   }
 
   @Override
-  public List<Contact> searchContacts(String name, String email, String phoneNumber) {
-    throw new UnsupportedOperationException("Not implemented yet");
-  }
-
-  @Override
   public List<Contact> getContactsByUserId(String userId) {
     return contactRepo.findByUserId(userId);
   }
@@ -68,4 +63,40 @@ public class ContactServiceImpl implements ContactService {
     var pageable = PageRequest.of(page, size, sort);
     return contactRepo.findByUser(user, pageable);
   }
+
+  @Override
+  public Page<Contact> searchByName(String nameKeyword, int size, int page, String sortBy, String order, User user) {
+    Sort sort = order.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+    var pageable = PageRequest.of(page, size, sort);
+    return contactRepo.findByUserAndNameContaining(user, nameKeyword, pageable);
+
+  }
+
+  @Override
+  public Page<Contact> searchByEmail(String emailKeyword, int size, int page, String sortBy, String order, User user) {
+    Sort sort = order.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+    var pageable = PageRequest.of(page, size, sort);
+    return contactRepo.findByUserAndEmailContaining(user, emailKeyword, pageable);
+
+  }
+
+  @Override
+  public Page<Contact> searchByPhoneNumber(String phoneNumberKeyword, int size, int page, String sortBy, String order,
+      User user) {
+    Sort sort = order.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+    var pageable = PageRequest.of(page, size, sort);
+    return contactRepo.findByUserAndPhoneNumberContaining(user, phoneNumberKeyword, pageable);
+
+  }
+
+  @Override
+  public long countByUser(User user) {
+    return contactRepo.countByUser(user);
+  }
+
+  // @Override
+  // public long countByUserAndFavourite(User user, boolean favourite) {
+  // return contactRepository.countByUserAndFavourite(user, favourite);
+  // }
+
 }

@@ -1,123 +1,388 @@
 <!-- common header -->
-
 <nav
   data-th-fragment="navbar"
-  class="bg-white border-gray-200 shadow-sm dark:bg-gray-900"
+  style="
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.06);
+    font-family: &quot;DM Sans&quot;, sans-serif;
+  "
 >
   <div
-    class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"
+    style="
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    "
   >
-    <!-- brand -->
+    <!-- ── Brand ── -->
     <a
-      data-th-src="@{'/'}"
-      class="flex items-center space-x-3 rtl:space-x-reverse"
+      data-th-href="@{'/home'}"
+      href="/home"
+      style="
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        flex-shrink: 0;
+      "
     >
       <img
         data-th-src="@{'/images/phone-call.png'}"
-        class="h-8 shadow"
-        alt="Flowbite Logo"
+        src="/images/phone-call.png"
+        style="height: 32px; width: 32px; object-fit: contain"
+        alt="SCM Logo"
       />
       <span
-        class="self-center text-2xl font-semibold whitespace-nowrap text-gray-900 dark:text-white"
+        style="
+          font-family: &quot;Syne&quot;, sans-serif;
+          font-size: 1.15rem;
+          font-weight: 700;
+          color: #0f172a;
+          white-space: nowrap;
+          letter-spacing: -0.02em;
+        "
         >Smart Contact Manager</span
       >
     </a>
 
-    <!-- end of brand logo -->
+    <!-- ── Desktop Nav Links ── -->
+    <ul
+      style="
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      "
+      id="desktop-nav-links"
+    >
+      <li>
+        <a
+          data-th-href="@{'/home'}"
+          href="/home"
+          class="scm-nav-link scm-nav-active"
+          >Home</a
+        >
+      </li>
+      <li>
+        <a data-th-href="@{'/about'}" href="/about" class="scm-nav-link"
+          >About</a
+        >
+      </li>
+      <li>
+        <a data-th-href="@{'/service'}" href="/service" class="scm-nav-link"
+          >Services</a
+        >
+      </li>
+      <li>
+        <a data-th-href="@{'/contact'}" href="/contact" class="scm-nav-link"
+          >Contact</a
+        >
+      </li>
+    </ul>
 
-    <div class="flex items-center gap-3 md:order-2 rtl:space-x-reverse">
-      <!-- Dark/Light toggle -->
+    <!-- ── Right actions ── -->
+    <div
+      style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0"
+    >
+      <!-- Theme toggle -->
       <button
         id="theme_change_button"
-        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
+        style="
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 7px 14px;
+          border-radius: 8px;
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          background: #f1f5f9;
+          color: #0f172a;
+          font-size: 0.82rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          white-space: nowrap;
+          font-family: &quot;DM Sans&quot;, sans-serif;
+        "
       >
-        <i class="fa-solid fa-moon"></i>
-        <span>Dark</span>
+        <i class="fa-solid fa-moon" style="font-size: 0.78rem"></i>
+        <span id="theme-label">Dark</span>
       </button>
 
-      <!-- Login button -->
+      <!-- Login -->
+      <a data-th-href="@{'/login'}" href="/login" class="scm-btn-outline"
+        >Login</a
+      >
+
+      <!-- Sign Up -->
+      <a data-th-href="@{'/register'}" href="/register" class="scm-btn-solid"
+        >Sign Up</a
+      >
+
+      <!-- Hamburger -->
+      <button
+        id="scm-hamburger"
+        onclick="scmToggleMenu()"
+        aria-label="Toggle menu"
+        style="
+          display: none;
+          flex-direction: column;
+          gap: 5px;
+          padding: 8px;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          border-radius: 8px;
+        "
+      >
+        <span class="scm-ham"></span>
+        <span class="scm-ham"></span>
+        <span class="scm-ham"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Mobile Menu ── -->
+  <div
+    id="scm-mobile-menu"
+    style="
+      display: none;
+      flex-direction: column;
+      padding: 1rem 1.5rem 1.5rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.07);
+      background: rgba(255, 255, 255, 0.97);
+      gap: 0.25rem;
+    "
+  >
+    <a data-th-href="@{'/home'}" href="/home" class="scm-mob-link">🏠 Home</a>
+    <a data-th-href="@{'/about'}" href="/about" class="scm-mob-link"
+      >ℹ️ About</a
+    >
+    <a data-th-href="@{'/service'}" href="/service" class="scm-mob-link"
+      >⚙️ Services</a
+    >
+    <a data-th-href="@{'/contact'}" href="/contact" class="scm-mob-link"
+      >✉️ Contact</a
+    >
+    <div
+      style="
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.07);
+      "
+    >
       <a
         data-th-href="@{'/login'}"
-        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        href="/login"
+        style="
+          flex: 1;
+          text-align: center;
+          padding: 9px;
+          border-radius: 8px;
+          border: 1.5px solid #3b7ef8;
+          color: #3b7ef8;
+          text-decoration: none;
+          font-size: 0.87rem;
+          font-weight: 500;
+          font-family: &quot;DM Sans&quot;, sans-serif;
+        "
       >
         Login
       </a>
-
-      <!-- Signup button -->
       <a
         data-th-href="@{'/register'}"
-        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        href="/register"
+        style="
+          flex: 1;
+          text-align: center;
+          padding: 9px;
+          border-radius: 8px;
+          background: #3b7ef8;
+          color: #fff;
+          text-decoration: none;
+          font-size: 0.87rem;
+          font-weight: 500;
+          font-family: &quot;DM Sans&quot;, sans-serif;
+        "
       >
-        Signup
+        Sign Up
       </a>
-
-      <!-- to open menu on small screen -->
-
-      <button
-        data-collapse-toggle="navbar-cta"
-        type="button"
-        class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-        aria-controls="navbar-cta"
-        aria-expanded="false"
-      >
-        <span class="sr-only">Open main menu</span>
-        <svg
-          class="w-5 h-5"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 17 14"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M1 1h15M1 7h15M1 13h15"
-          />
-        </svg>
-      </button>
-    </div>
-
-    <!-- menus  -->
-
-    <div
-      class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
-      id="navbar-cta"
-    >
-      <ul
-        class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
-      >
-        <li>
-          <a
-            data-th-href="@{'/home'}"
-            class="block py-2 px-3 md:p-0 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
-            aria-current="page"
-            >Home</a
-          >
-        </li>
-        <li>
-          <a
-            data-th-href="@{'/about'}"
-            class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-            >About</a
-          >
-        </li>
-        <li>
-          <a
-            data-th-href="@{'/service'}"
-            class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-            >Services</a
-          >
-        </li>
-        <li>
-          <a
-            data-th-href="@{'/contact'}"
-            class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-            >Contact</a
-          >
-        </li>
-      </ul>
     </div>
   </div>
+
+  <!-- ── Navbar Styles ── -->
+  <style>
+    .scm-nav-link {
+      display: block;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #475569;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .scm-nav-link:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .scm-nav-active {
+      color: #3b7ef8 !important;
+      background: rgba(59, 126, 248, 0.09) !important;
+    }
+
+    .scm-btn-outline {
+      padding: 7px 18px;
+      border-radius: 8px;
+      border: 1.5px solid #3b7ef8;
+      color: #3b7ef8;
+      font-size: 0.87rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+      font-family: "DM Sans", sans-serif;
+    }
+    .scm-btn-outline:hover {
+      background: #3b7ef8;
+      color: #fff;
+    }
+
+    .scm-btn-solid {
+      padding: 7px 18px;
+      border-radius: 8px;
+      background: #3b7ef8;
+      color: #fff;
+      font-size: 0.87rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 2px 12px rgba(59, 126, 248, 0.3);
+      white-space: nowrap;
+      font-family: "DM Sans", sans-serif;
+    }
+    .scm-btn-solid:hover {
+      background: #2563eb;
+      box-shadow: 0 4px 18px rgba(59, 126, 248, 0.45);
+      color: #fff;
+    }
+
+    .scm-mob-link {
+      display: block;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #334155;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .scm-mob-link:hover {
+      background: #f1f5f9;
+    }
+
+    .scm-ham {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: #334155;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    /* ── Dark mode ── */
+    html.dark nav[data-th-fragment="navbar"] {
+      background: rgba(15, 23, 42, 0.92) !important;
+      border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    html.dark .scm-nav-link {
+      color: #94a3b8;
+    }
+    html.dark .scm-nav-link:hover {
+      background: rgba(255, 255, 255, 0.07);
+      color: #f1f5f9;
+    }
+    html.dark .scm-nav-active {
+      color: #60a5fa !important;
+      background: rgba(96, 165, 250, 0.1) !important;
+    }
+    html.dark #scm-mobile-menu {
+      background: rgba(15, 23, 42, 0.97) !important;
+      border-top-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    html.dark .scm-mob-link {
+      color: #cbd5e1;
+    }
+    html.dark .scm-mob-link:hover {
+      background: rgba(255, 255, 255, 0.07);
+    }
+    html.dark .scm-ham {
+      background: #94a3b8;
+    }
+    html.dark #theme_change_button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* ── Brand text dark ── */
+    html.dark #scm-brand-name {
+      color: #f1f5f9 !important;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      #desktop-nav-links {
+        display: none !important;
+      }
+      #scm-hamburger {
+        display: flex !important;
+      }
+    }
+    @media (min-width: 769px) {
+      #scm-hamburger {
+        display: none !important;
+      }
+      #scm-mobile-menu {
+        display: none !important;
+      }
+    }
+  </style>
+
+  <script>
+    function scmToggleMenu() {
+      var menu = document.getElementById("scm-mobile-menu");
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    }
+
+    // Auto-highlight active page
+    document.addEventListener("DOMContentLoaded", function () {
+      var path = window.location.pathname;
+      document
+        .querySelectorAll(".scm-nav-link, .scm-mob-link")
+        .forEach(function (link) {
+          var href = link.getAttribute("href");
+          if (href && path.startsWith(href) && href !== "/") {
+            link.classList.add("scm-nav-active");
+          } else if (href === "/" && path === "/") {
+            link.classList.add("scm-nav-active");
+          }
+        });
+    });
+  </script>
 </nav>

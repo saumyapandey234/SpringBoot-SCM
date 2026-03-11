@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en" th:replace="~{base :: parent(~{::#content},~{::title})}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Not Available | SCM</title>
+  </head>
+  <body>
+    <div id="content">
+      <style>
+        *,
+        *::before,
+        *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        :root {
+          --accent: #3b7ef8;
+          --accent2: #8b5cf6;
+          --accent3: #10b981;
+          --text: #0f172a;
+          --muted: #64748b;
+          --surface: #f8f9fc;
+          --border: rgba(0, 0, 0, 0.08);
+        }
+        body {
+          background: #fff !important;
+          font-family: "DM Sans", sans-serif;
+        }
+
+        .page-wrap {
+          margin-left: 240px;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem;
+        }
+
+        .card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 24px;
+          padding: 3.5rem 3rem;
+          text-align: center;
+          max-width: 480px;
+          width: 100%;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+        .card::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(
+            90deg,
+            var(--accent),
+            var(--accent2),
+            var(--accent3)
+          );
+        }
+
+        /* Animated emoji */
+        .oops-emoji {
+          font-size: 4rem;
+          display: block;
+          margin-bottom: 1.2rem;
+          animation: wobble 2s ease-in-out infinite;
+        }
+        @keyframes wobble {
+          0%,
+          100% {
+            transform: rotate(-5deg);
+          }
+          50% {
+            transform: rotate(5deg);
+          }
+        }
+
+        .oops-code {
+          font-family: "Syne", sans-serif;
+          font-size: 0.72rem;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: var(--accent);
+          margin-bottom: 0.6rem;
+        }
+
+        .oops-title {
+          font-family: "Syne", sans-serif;
+          font-size: 1.7rem;
+          font-weight: 800;
+          color: var(--text);
+          margin-bottom: 0.8rem;
+          line-height: 1.2;
+        }
+
+        .oops-desc {
+          font-size: 0.92rem;
+          color: var(--muted);
+          line-height: 1.7;
+          margin-bottom: 2rem;
+        }
+
+        /* Buttons */
+        .btn-row {
+          display: flex;
+          gap: 0.8rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        .btn-primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 0.75rem 1.8rem;
+          border-radius: 10px;
+          background: linear-gradient(135deg, var(--accent), var(--accent2));
+          color: #fff;
+          font-family: "DM Sans", sans-serif;
+          font-size: 0.88rem;
+          font-weight: 600;
+          text-decoration: none;
+          transition: all 0.25s;
+          box-shadow: 0 4px 14px rgba(59, 126, 248, 0.3);
+          border: none;
+          cursor: pointer;
+        }
+        .btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(59, 126, 248, 0.4);
+        }
+
+        .btn-ghost {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 0.75rem 1.8rem;
+          border-radius: 10px;
+          background: #fff;
+          border: 1.5px solid var(--border);
+          color: var(--muted);
+          font-family: "DM Sans", sans-serif;
+          font-size: 0.88rem;
+          font-weight: 500;
+          text-decoration: none;
+          transition: all 0.25s;
+          cursor: pointer;
+        }
+        .btn-ghost:hover {
+          border-color: var(--accent);
+          color: var(--accent);
+          background: rgba(59, 126, 248, 0.04);
+        }
+
+        /* Decorative orbs */
+        .orb1 {
+          position: absolute;
+          width: 160px;
+          height: 160px;
+          border-radius: 50%;
+          background: radial-gradient(
+            circle,
+            rgba(59, 126, 248, 0.07),
+            transparent 70%
+          );
+          top: -40px;
+          right: -40px;
+          pointer-events: none;
+        }
+        .orb2 {
+          position: absolute;
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          background: radial-gradient(
+            circle,
+            rgba(139, 92, 246, 0.07),
+            transparent 70%
+          );
+          bottom: -30px;
+          left: -30px;
+          pointer-events: none;
+        }
+
+        /* Tag */
+        .coming-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 0.3rem 0.9rem;
+          border-radius: 100px;
+          background: rgba(245, 158, 11, 0.1);
+          border: 1px solid rgba(245, 158, 11, 0.2);
+          color: #d97706;
+          font-size: 0.72rem;
+          font-weight: 600;
+          margin-bottom: 1.4rem;
+        }
+        .coming-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #f59e0b;
+          animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.3;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .page-wrap {
+            margin-left: 0;
+            padding: 5rem 1.2rem 2rem;
+          }
+        }
+      </style>
+
+      <!-- Sidebar -->
+      <div data-th-replace="~{user/sidebar::user-sidebar}"></div>
+
+      <div class="page-wrap">
+        <div class="card">
+          <div class="orb1"></div>
+          <div class="orb2"></div>
+
+          <span class="oops-emoji">🚧</span>
+
+          <div class="coming-tag">
+            <span class="coming-dot"></span>
+            Coming Soon
+          </div>
+
+          <div class="oops-code">Feature Unavailable</div>
+          <div class="oops-title">Oops! You can't<br />do this right now.</div>
+          <p class="oops-desc">
+            This feature is still under construction. We're working hard to
+            bring it to you soon. In the meantime, feel free to explore the rest
+            of the app!
+          </p>
+
+          <div class="btn-row">
+            <a
+              th:href="@{/user/dashboard}"
+              href="/user/dashboard"
+              class="btn-primary"
+            >
+              <svg
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+              </svg>
+              Go to Dashboard
+            </a>
+            <a onclick="history.back()" class="btn-ghost">
+              <svg
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Go Back
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

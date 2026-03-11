@@ -1,12 +1,633 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" th:replace="~{base :: parent(~{::#content},~{::title})}">
   <head>
-    <title>Service page</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Services — Smart Contact Manager</title>
   </head>
   <body>
-    <section id="content">
-      <h1>Welcome to services page</h1>
-      <h2>Services offered by SCM</h2>
-    </section>
+    <div id="content">
+      <style>
+        *,
+        *::before,
+        *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        :root {
+          --surface: #f8f9fc;
+          --border: rgba(0, 0, 0, 0.08);
+          --accent: #3b7ef8;
+          --accent2: #8b5cf6;
+          --accent3: #10b981;
+          --text: #0f172a;
+          --muted: #64748b;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        body {
+          background: #ffffff !important;
+          color: var(--text) !important;
+          font-family: "DM Sans", sans-serif;
+          font-weight: 300;
+          overflow-x: hidden;
+          cursor: none;
+        }
+
+        /* Cursor */
+        .cursor {
+          width: 12px;
+          height: 12px;
+          background: var(--accent);
+          border-radius: 50%;
+          position: fixed;
+          top: 0;
+          left: 0;
+          pointer-events: none;
+          z-index: 9999;
+          transition: transform 0.15s ease;
+          transform: translate(-50%, -50%);
+        }
+        .cursor-ring {
+          width: 36px;
+          height: 36px;
+          border: 1.5px solid rgba(59, 126, 248, 0.45);
+          border-radius: 50%;
+          position: fixed;
+          top: 0;
+          left: 0;
+          pointer-events: none;
+          z-index: 9998;
+          transition:
+            transform 0.35s ease,
+            width 0.2s,
+            height 0.2s;
+          transform: translate(-50%, -50%);
+        }
+
+        /* BG grid */
+        body::before {
+          content: "";
+          position: fixed;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(59, 126, 248, 0.05) 1px, transparent 1px),
+            linear-gradient(
+              90deg,
+              rgba(59, 126, 248, 0.05) 1px,
+              transparent 1px
+            );
+          background-size: 60px 60px;
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        #content {
+          position: relative;
+          z-index: 2;
+        }
+
+        /* Shared */
+        .scm-section {
+          padding: 5rem 2rem;
+          max-width: 1160px;
+          margin: 0 auto;
+        }
+        .scm-divider {
+          height: 1px;
+          background: var(--border);
+          max-width: 1160px;
+          margin: 0 auto;
+        }
+
+        .section-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          color: var(--accent);
+          font-size: 0.78rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          font-weight: 500;
+          margin-bottom: 1rem;
+        }
+        .section-tag::before {
+          content: "";
+          display: block;
+          width: 24px;
+          height: 1.5px;
+          background: var(--accent);
+        }
+
+        .section-title {
+          font-family: "Syne", sans-serif;
+          font-size: clamp(2rem, 4vw, 3rem);
+          font-weight: 700;
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          margin-bottom: 1rem;
+          color: var(--text);
+        }
+        .section-sub {
+          color: var(--muted);
+          font-size: 1rem;
+          line-height: 1.7;
+          max-width: 500px;
+          margin-bottom: 3rem;
+          font-weight: 300;
+        }
+
+        /* Scroll reveal */
+        .scroll-reveal {
+          opacity: 0;
+          transform: translateY(26px);
+          transition:
+            opacity 0.6s ease,
+            transform 0.6s ease;
+        }
+        .scroll-reveal.visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(22px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes gradShift {
+          0%,
+          100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+        @keyframes orbFloat {
+          0%,
+          100% {
+            transform: translateY(0) scale(1);
+          }
+          50% {
+            transform: translateY(-26px) scale(1.04);
+          }
+        }
+        @keyframes pulse {
+          0%,
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.4;
+            transform: scale(0.75);
+          }
+        }
+
+        /* ══════════════════
+           PAGE HEADER
+        ══════════════════ */
+        .svc-header {
+          min-height: 52vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 7rem 2rem 4rem;
+          position: relative;
+          overflow: hidden;
+        }
+        .orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(90px);
+          pointer-events: none;
+          animation: orbFloat 8s ease-in-out infinite;
+        }
+        .orb-a {
+          width: 460px;
+          height: 460px;
+          background: radial-gradient(
+            circle,
+            rgba(59, 126, 248, 0.11),
+            transparent 70%
+          );
+          top: -110px;
+          left: -130px;
+        }
+        .orb-b {
+          width: 360px;
+          height: 360px;
+          background: radial-gradient(
+            circle,
+            rgba(139, 92, 246, 0.09),
+            transparent 70%
+          );
+          bottom: -70px;
+          right: -90px;
+          animation-delay: -4s;
+        }
+
+        .svc-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(59, 126, 248, 0.08);
+          border: 1px solid rgba(59, 126, 248, 0.2);
+          border-radius: 100px;
+          padding: 6px 16px;
+          font-size: 0.78rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--accent);
+          margin-bottom: 1.8rem;
+          opacity: 0;
+          animation: fadeUp 0.6s ease 0.2s forwards;
+        }
+        .badge-dot {
+          width: 6px;
+          height: 6px;
+          background: var(--accent3);
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+        }
+
+        .svc-title {
+          font-family: "Syne", sans-serif;
+          font-size: clamp(2.8rem, 7vw, 5.5rem);
+          font-weight: 800;
+          line-height: 1;
+          letter-spacing: -0.03em;
+          margin-bottom: 1.4rem;
+          opacity: 0;
+          animation: fadeUp 0.7s ease 0.35s forwards;
+        }
+        .svc-title .line1 {
+          display: block;
+          color: var(--text);
+        }
+        .svc-title .line2 {
+          display: block;
+          background: linear-gradient(
+            135deg,
+            var(--accent),
+            var(--accent2),
+            var(--accent3)
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          background-size: 200% 200%;
+          animation:
+            gradShift 4s ease infinite,
+            fadeUp 0.7s ease 0.35s forwards;
+        }
+
+        .svc-sub {
+          font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+          color: var(--muted);
+          max-width: 480px;
+          line-height: 1.75;
+          font-weight: 300;
+          opacity: 0;
+          animation: fadeUp 0.7s ease 0.5s forwards;
+        }
+
+        /* ══════════════════
+           SERVICE CARDS
+        ══════════════════ */
+        .svc-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 1px;
+          background: var(--border);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+        }
+        .svc-card {
+          background: var(--surface);
+          padding: 2.6rem;
+          position: relative;
+          overflow: hidden;
+          transition:
+            background 0.3s,
+            box-shadow 0.3s;
+        }
+        .svc-card::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            var(--cc, var(--accent)),
+            transparent
+          );
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+        .svc-card:hover {
+          background: #fff;
+          box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+        }
+        .svc-card:hover::before {
+          opacity: 1;
+        }
+        .svc-card[data-c="blue"] {
+          --cc: #3b7ef8;
+        }
+        .svc-card[data-c="purple"] {
+          --cc: #8b5cf6;
+        }
+        .svc-card[data-c="green"] {
+          --cc: #10b981;
+        }
+        .svc-card[data-c="orange"] {
+          --cc: #f97316;
+        }
+
+        .svc-icon {
+          width: 50px;
+          height: 50px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.4rem;
+          margin-bottom: 1.4rem;
+          background: rgba(59, 126, 248, 0.08);
+          border: 1px solid rgba(59, 126, 248, 0.12);
+          transition: transform 0.3s;
+        }
+        .svc-card:hover .svc-icon {
+          transform: scale(1.1) rotate(-5deg);
+        }
+        .svc-card-title {
+          font-family: "Syne", sans-serif;
+          font-size: 1.05rem;
+          font-weight: 600;
+          color: var(--text);
+          margin-bottom: 0.5rem;
+        }
+        .svc-card-desc {
+          font-size: 0.9rem;
+          color: var(--muted);
+          line-height: 1.65;
+          font-weight: 300;
+        }
+
+        /* ══════════════════
+           FREE BANNER
+        ══════════════════ */
+        .free-banner {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          padding: 3rem 3.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 2rem;
+          flex-wrap: wrap;
+          box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+          transition: box-shadow 0.3s;
+        }
+        .free-banner:hover {
+          box-shadow: 0 8px 36px rgba(59, 126, 248, 0.1);
+        }
+        .free-banner-left {
+        }
+        .free-banner-tag {
+          font-size: 0.72rem;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--accent);
+          margin-bottom: 0.5rem;
+        }
+        .free-banner-title {
+          font-family: "Syne", sans-serif;
+          font-size: 1.6rem;
+          font-weight: 700;
+          color: var(--text);
+          letter-spacing: -0.02em;
+          margin-bottom: 0.5rem;
+        }
+        .free-banner-sub {
+          font-size: 0.9rem;
+          color: var(--muted);
+          font-weight: 300;
+          line-height: 1.6;
+        }
+
+        .btn-primary {
+          background: var(--accent);
+          color: #fff;
+          border: none;
+          padding: 0.85rem 2.2rem;
+          border-radius: 10px;
+          font-family: "DM Sans", sans-serif;
+          font-size: 0.9rem;
+          font-weight: 500;
+          cursor: none;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.25s ease;
+          box-shadow: 0 4px 20px rgba(59, 126, 248, 0.35);
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .btn-primary:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 32px rgba(59, 126, 248, 0.45);
+          color: #fff;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+          .scm-section {
+            padding: 4rem 1.5rem;
+          }
+          .svc-header {
+            padding: 5rem 1.5rem 3rem;
+          }
+          .free-banner {
+            padding: 2rem 1.5rem;
+            flex-direction: column;
+            text-align: center;
+          }
+        }
+      </style>
+
+      <!-- Cursor -->
+      <div class="cursor" id="cursor"></div>
+      <div class="cursor-ring" id="cursorRing"></div>
+
+      <!-- ══ HEADER ══ -->
+      <section class="svc-header">
+        <div class="orb orb-a"></div>
+        <div class="orb orb-b"></div>
+
+        <div class="svc-badge">
+          <span class="badge-dot"></span> What We Offer
+        </div>
+
+        <h1 class="svc-title">
+          <span class="line1">Simple Services,</span>
+          <span class="line2">Real Value.</span>
+        </h1>
+
+        <p class="svc-sub">
+          Everything Smart Contact Manager provides — free, simple, and built
+          for real people.
+        </p>
+      </section>
+
+      <div class="scm-divider"></div>
+
+      <!-- ══ SERVICE CARDS ══ -->
+      <section class="scm-section">
+        <div class="scroll-reveal">
+          <div class="section-tag">Services</div>
+          <h2 class="section-title">
+            Everything included,<br />completely free.
+          </h2>
+          <p class="section-sub">
+            No paid plans. No hidden limits. Just a contact manager that works.
+          </p>
+        </div>
+
+        <div class="svc-grid scroll-reveal">
+          <div class="svc-card" data-c="blue">
+            <div class="svc-icon">📇</div>
+            <div class="svc-card-title">Contact Management</div>
+            <div class="svc-card-desc">
+              Save unlimited contacts with name, phone, email, social media
+              links, and a profile photo. Edit or delete anytime — full control,
+              always.
+            </div>
+          </div>
+
+          <div class="svc-card" data-c="purple">
+            <div class="svc-icon">🔍</div>
+            <div class="svc-card-title">Smart Search</div>
+            <div class="svc-card-desc">
+              Find any contact instantly with keyword search. Results are
+              paginated so browsing large lists stays smooth and fast.
+            </div>
+          </div>
+
+          <div class="svc-card" data-c="green">
+            <div class="svc-icon">🔐</div>
+            <div class="svc-card-title">Secure Login</div>
+            <div class="svc-card-desc">
+              Sign up with email or log in instantly via Google or GitHub OAuth.
+              Your contacts are private — only you can see them.
+            </div>
+          </div>
+
+          <div class="svc-card" data-c="orange">
+            <div class="svc-icon">☁️</div>
+            <div class="svc-card-title">Cloud Storage</div>
+            <div class="svc-card-desc">
+              All your contacts and photos are securely stored in the cloud.
+              Access them from any device, anytime, without losing anything.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="scm-divider"></div>
+
+      <!-- ══ FREE BANNER ══ -->
+      <section class="scm-section">
+        <div class="free-banner scroll-reveal">
+          <div class="free-banner-left">
+            <div class="free-banner-tag">Pricing</div>
+            <div class="free-banner-title">100% Free. Always.</div>
+            <div class="free-banner-sub">
+              This is a learning project. No subscriptions, no plans, no credit
+              card needed.<br />
+              Just sign up and start organising your contacts right away.
+            </div>
+          </div>
+          <a th:href="@{/register}" href="/register" class="btn-primary">
+            <svg
+              width="15"
+              height="15"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+            Get Started Free
+          </a>
+        </div>
+      </section>
+
+      <script>
+        // Cursor
+        const cursor = document.getElementById("cursor");
+        const ring = document.getElementById("cursorRing");
+        let mx = 0,
+          my = 0,
+          rx = 0,
+          ry = 0;
+        document.addEventListener("mousemove", (e) => {
+          mx = e.clientX;
+          my = e.clientY;
+          cursor.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+        });
+        (function loop() {
+          rx += (mx - rx) * 0.12;
+          ry += (my - ry) * 0.12;
+          ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+          requestAnimationFrame(loop);
+        })();
+        document.querySelectorAll("a,button,.svc-card").forEach((el) => {
+          el.addEventListener("mouseenter", () => {
+            ring.style.width = "52px";
+            ring.style.height = "52px";
+          });
+          el.addEventListener("mouseleave", () => {
+            ring.style.width = "36px";
+            ring.style.height = "36px";
+          });
+        });
+
+        // Scroll reveal
+        const obs = new IntersectionObserver(
+          (es) =>
+            es.forEach((e) => {
+              if (e.isIntersecting) e.target.classList.add("visible");
+            }),
+          { threshold: 0.1 },
+        );
+        document
+          .querySelectorAll(".scroll-reveal")
+          .forEach((el) => obs.observe(el));
+      </script>
+    </div>
   </body>
 </html>

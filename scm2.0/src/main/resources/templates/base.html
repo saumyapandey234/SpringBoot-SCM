@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   lang="en"
   th:fragment="parent(content,title)"
@@ -14,14 +14,19 @@
       href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
       rel="stylesheet"
     />
-
-    <!-- font font-awesome -->
     <link
       rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+      href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
 
-    <!-- Add inside <head> before </head> -->
+    <!-- Google Fonts (needed by home page) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
       html.light {
         background: #fff;
@@ -31,11 +36,12 @@
         background: #18181b;
         color: #fafafa;
       }
-      /* Example for buttons and other elements */
       body,
       button,
       input {
-        transition: background 0.3s, color 0.3s;
+        transition:
+          background 0.3s,
+          color 0.3s;
       }
       html.dark button {
         background: #222;
@@ -48,30 +54,133 @@
     </style>
   </head>
   <body>
-    <!-- common header -->
-
-    <!-- if user is logged in via any social account or any local db account :navbar-->
-
-    <div data-th-if="${loggedInUser}">
-      <div data-th-replace="~{user/user_navbar::user-navbar}"></div>
-    </div>
-
-    <!-- if user is not logged in -->
-
+    <!-- Public navbar: guests only -->
     <div data-th-unless="${loggedInUser}">
       <div data-th-replace="~{navbar::navbar}"></div>
     </div>
 
-    <div class="p-4">
-      <section data-th-replace="${content}"></section>
+    <!-- Top bar: logged-in users only -->
+    <div data-th-if="${loggedInUser}">
+      <style>
+        .scm-topbar {
+          position: fixed;
+          top: 0;
+          left: 240px;
+          right: 0;
+          height: 56px;
+          background: #ffffff;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          padding: 0 2rem;
+          z-index: 998;
+          font-family: "DM Sans", sans-serif;
+          box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+          gap: 1rem;
+        }
+        .topbar-greeting {
+          font-size: 0.82rem;
+          color: #64748b;
+          font-weight: 300;
+        }
+        .topbar-name {
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: #0f172a;
+        }
+        .topbar-av {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #3b7ef8, #8b5cf6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.72rem;
+          font-weight: 700;
+          color: #fff;
+          flex-shrink: 0;
+          border: 2px solid #fff;
+          box-shadow: 0 2px 8px rgba(59, 126, 248, 0.3);
+        }
+        .topbar-av img {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        .topbar-logout {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 0.4rem 1rem;
+          border-radius: 8px;
+          background: #fff3f3;
+          color: #ef4444;
+          border: 1px solid #fca5a5;
+          font-size: 0.8rem;
+          font-weight: 500;
+          text-decoration: none;
+          cursor: pointer;
+          font-family: "DM Sans", sans-serif;
+          transition: all 0.2s;
+        }
+        .topbar-logout:hover {
+          background: #fee2e2;
+          color: #dc2626;
+        }
+        @media (max-width: 768px) {
+          .scm-topbar {
+            left: 0;
+            padding: 0 1rem 0 4rem;
+          }
+        }
+      </style>
+
+      <div class="scm-topbar">
+        <span class="topbar-greeting">Welcome back,</span>
+        <span class="topbar-name" th:text="${loggedInUser.name ?: 'User'}"
+          >User</span
+        >
+
+        <!-- Avatar: initials only - safe, no picture field dependency -->
+        <div
+          class="topbar-av"
+          th:text="${loggedInUser.name != null and !#strings.isEmpty(loggedInUser.name) ? #strings.toUpperCase(#strings.substring(loggedInUser.name, 0, (loggedInUser.name.length() >= 2 ? 2 : 1))) : 'U'}"
+        >
+          U
+        </div>
+
+        <!-- Logout -->
+        <form
+          th:action="@{/do-logout}"
+          action="/do-logout"
+          method="post"
+          style="margin: 0; padding: 0"
+        >
+          <button type="submit" class="topbar-logout">
+            <svg
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"
+              />
+            </svg>
+            Logout
+          </button>
+        </form>
+      </div>
     </div>
 
-    <!-- flowbite content -->
+    <!-- ✅ Removed the <div class="p-4"> wrapper — pages control their own layout -->
+    <section data-th-replace="${content}"></section>
 
-    <!-- common footer -->
-    <!-- <footer class="p-4">
-      <p>Footer:Learn code with Saumya</p>
-    </footer> -->
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <script data-th-src="@{'/js/script.js'}"></script>
   </body>

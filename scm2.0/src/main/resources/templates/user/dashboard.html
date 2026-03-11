@@ -1,31 +1,357 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" th:replace="~{base :: parent(~{::#content},~{::title})}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title th:text="${loggedInUser.name + ' | SCM'}">Profile page</title>
+    <title>Dashboard | SCM</title>
   </head>
   <body>
     <div id="content">
-      <!-- if user is logged in :sidebar -->
-      <div data-th-if="${loggedInUser}">
-        <div data-th-replace="~{user/sidebar::user-sidebar}"></div>
-        <!-- //sidebar is file and user-sidebar is file name. -->
+      <style>
+        *,
+        *::before,
+        *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        :root {
+          --accent: #3b7ef8;
+          --accent2: #8b5cf6;
+          --text: #0f172a;
+          --muted: #64748b;
+          --surface: #f8f9fc;
+          --border: rgba(0, 0, 0, 0.08);
+        }
+        body {
+          background: #fff !important;
+          font-family: "DM Sans", sans-serif;
+        }
+
+        .dash-wrap {
+          margin-left: 240px;
+          padding: 5rem 2.5rem 4rem;
+          min-height: 100vh;
+          max-width: 700px;
+        }
+
+        .pg-label {
+          font-size: 0.72rem;
+          font-weight: 600;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--accent);
+          margin-bottom: 0.4rem;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .pg-label::before {
+          content: "";
+          width: 20px;
+          height: 1.5px;
+          background: var(--accent);
+        }
+        .pg-title {
+          font-family: "Syne", sans-serif;
+          font-size: 2rem;
+          font-weight: 700;
+          color: var(--text);
+          margin-bottom: 0.3rem;
+        }
+        .pg-sub {
+          font-size: 0.9rem;
+          color: var(--muted);
+          margin-bottom: 2.5rem;
+        }
+
+        .coffee-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          padding: 2.4rem;
+          position: relative;
+          overflow: hidden;
+        }
+        .coffee-card::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, var(--accent), var(--accent2));
+        }
+
+        .coffee-emoji {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+          display: block;
+        }
+        .coffee-title {
+          font-family: "Syne", sans-serif;
+          font-size: 1.3rem;
+          font-weight: 700;
+          color: var(--text);
+          margin-bottom: 0.5rem;
+        }
+        .coffee-desc {
+          font-size: 0.9rem;
+          color: var(--muted);
+          line-height: 1.7;
+          margin-bottom: 1.8rem;
+        }
+
+        .amount-wrap {
+          position: relative;
+          margin-bottom: 1.4rem;
+        }
+        .amount-symbol {
+          position: absolute;
+          left: 14px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-family: "Syne", sans-serif;
+          font-weight: 700;
+          font-size: 1rem;
+          color: var(--muted);
+        }
+        .amount-input {
+          width: 100%;
+          padding: 0.8rem 1rem 0.8rem 2.2rem;
+          border: 1.5px solid var(--border);
+          border-radius: 10px;
+          font-family: "Syne", sans-serif;
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: var(--text);
+          background: #fff;
+          outline: none;
+          transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
+        }
+        .amount-input:focus {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px rgba(59, 126, 248, 0.1);
+        }
+
+        .donate-btn {
+          width: 100%;
+          padding: 0.9rem;
+          border-radius: 10px;
+          border: none;
+          background: linear-gradient(135deg, var(--accent), var(--accent2));
+          color: #fff;
+          font-family: "Syne", sans-serif;
+          font-size: 0.95rem;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: all 0.25s;
+          box-shadow: 0 4px 16px rgba(59, 126, 248, 0.3);
+        }
+        .donate-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(59, 126, 248, 0.4);
+        }
+        .donate-btn:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .secure-note {
+          text-align: center;
+          margin-top: 0.9rem;
+          font-size: 0.72rem;
+          color: var(--muted);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 5px;
+        }
+
+        .toast {
+          display: none;
+          position: fixed;
+          bottom: 2rem;
+          right: 2rem;
+          background: #0f172a;
+          color: #fff;
+          padding: 1rem 1.6rem;
+          border-radius: 12px;
+          font-size: 0.88rem;
+          font-weight: 500;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+          z-index: 9999;
+        }
+        .toast.show {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+          .dash-wrap {
+            margin-left: 0;
+            padding: 4.5rem 1.2rem 3rem;
+          }
+        }
+      </style>
+
+      <div data-th-replace="~{user/sidebar::user-sidebar}"></div>
+
+      <div class="dash-wrap">
+        <div class="pg-label">Dashboard</div>
+        <h1 class="pg-title">
+          Hello,
+          <span th:text="${loggedInUser != null ? loggedInUser.name : 'there'}"
+            >there</span
+          >
+          👋
+        </h1>
+        <p class="pg-sub">Manage your contacts and support our work below.</p>
+
+        <div class="coffee-card">
+          <span class="coffee-emoji">☕</span>
+          <div class="coffee-title">Buy us a coffee</div>
+          <p class="coffee-desc">
+            SCM is a free project built with love. If you find it useful,
+            consider supporting us — it keeps the servers running and motivates
+            us to build more.
+          </p>
+
+          <div class="amount-wrap">
+            <span class="amount-symbol">₹</span>
+            <input
+              type="number"
+              id="paymentField"
+              class="amount-input"
+              placeholder="99"
+              value="99"
+              min="1"
+            />
+          </div>
+
+          <button class="donate-btn" id="donateBtn" onclick="paymentStart()">
+            ☕ Donate Now
+          </button>
+
+          <div class="secure-note">
+            <svg
+              width="11"
+              height="11"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            Secured by Razorpay · Money goes directly to our account
+          </div>
+        </div>
       </div>
-      <div class="pl-62 pt-20" style="height: 1000px">
-        <h1 class="text-3xl font-bold">Welcome to Dashboard page</h1>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis
-          aliquid doloribus hic velit architecto nesciunt, quo quam nam dolore
-          iusto facilis voluptatum enim reiciendis at labore pariatur! Tenetur,
-          esse debitis facilis ullam impedit accusantium perspiciatis, optio
-          aperiam quod blanditiis quia, similique ea quisquam sit necessitatibus
-          alias assumenda non qui molestiae.
-        </p>
+
+      <div class="toast" id="successToast">
+        ✅ <span id="toastMsg">Payment successful!</span>
       </div>
+
+      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+      <script th:inline="javascript">
+        const userName =
+          /*[[${loggedInUser != null ? loggedInUser.name  : ''}]]*/ "";
+        const userEmail =
+          /*[[${loggedInUser != null ? loggedInUser.email : ''}]]*/ "";
+
+        function showToast(msg) {
+          const t = document.getElementById("successToast");
+          document.getElementById("toastMsg").textContent = msg;
+          t.classList.add("show");
+          setTimeout(() => t.classList.remove("show"), 5000);
+        }
+
+        async function paymentStart() {
+          const amountRupees = parseInt(
+            document.getElementById("paymentField").value,
+          );
+          if (!amountRupees || amountRupees < 1) {
+            alert("Please enter a valid amount (minimum ₹1).");
+            return;
+          }
+
+          const btn = document.getElementById("donateBtn");
+          btn.disabled = true;
+          btn.textContent = "Processing...";
+
+          try {
+            // Step 1: Backend creates Razorpay order
+            const orderRes = await fetch("/payment/create-order", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ amount: amountRupees * 100 }),
+            });
+            const order = await orderRes.json();
+
+            if (!order.success) {
+              alert("Could not create order: " + order.error);
+              btn.disabled = false;
+              btn.innerHTML = "☕ Donate Now";
+              return;
+            }
+
+            // Step 2: Open Razorpay with order_id — this routes money to your account
+            const options = {
+              key: order.keyId,
+              amount: order.amount,
+              currency: order.currency,
+              order_id: order.orderId,
+              name: "Smart Contact Manager",
+              description: "Buy us a coffee ☕",
+              image: "/images/phone-call.png",
+              prefill: { name: userName, email: userEmail },
+              theme: { color: "#3b7ef8" },
+              handler: async function (response) {
+                // Step 3: Verify signature on backend
+                const verifyRes = await fetch("/payment/verify", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                  }),
+                });
+                const result = await verifyRes.json();
+                if (result.success) {
+                  showToast(
+                    "🎉 Thank you! Payment ID: " + response.razorpay_payment_id,
+                  );
+                } else {
+                  alert("Verification failed. Contact support.");
+                }
+              },
+              modal: {
+                ondismiss: function () {
+                  btn.disabled = false;
+                  btn.innerHTML = "☕ Donate Now";
+                },
+              },
+            };
+
+            new Razorpay(options).open();
+          } catch (err) {
+            alert("Something went wrong. Please try again.");
+            btn.disabled = false;
+            btn.innerHTML = "☕ Donate Now";
+          }
+        }
+      </script>
     </div>
-    <script>
-      console.log("This is dashboard page");
-    </script>
   </body>
 </html>

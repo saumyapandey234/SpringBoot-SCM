@@ -1,156 +1,498 @@
-<aside
-  data-th-fragment="user-sidebar"
-  id="logo-sidebar"
-  class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
-  aria-label="Sidebar"
->
-  <div
-    class="h-full pt-5 px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800"
-  >
-    <a href="/" class="flex items-center ps-2.5 mb-5">
-      <i class="fa-solid fa-phone-volume text-xl me-3"></i>
-      <span
-        class="self-center text-xl font-semibold whitespace-nowrap dark:text-white"
-      >
-        Welcoming you
-      </span>
-    </a>
+<!doctype html>
+<html lang="en">
+  <head></head>
+  <body>
+    <aside
+      data-th-fragment="user-sidebar"
+      id="scm-sidebar"
+      aria-label="Sidebar"
+    >
+      <style>
+        :root {
+          --accent: #3b7ef8;
+          --accent2: #8b5cf6;
+          --accent3: #10b981;
+          --text: #0f172a;
+          --muted: #64748b;
+          --border: rgba(0, 0, 0, 0.08);
+          --surface: #f8f9fc;
+        }
 
-    <ul class="space-y-2 font-medium">
-      <li>
-        <a
-          data-th-href="@{'/user/dashboard'}"
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+        #scm-sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 240px;
+          height: 100vh;
+          background: #ffffff;
+          border-right: 1px solid var(--border);
+          box-shadow: 4px 0 24px rgba(0, 0, 0, 0.06);
+          z-index: 999;
+          display: flex;
+          flex-direction: column;
+          overflow-y: auto;
+          transition: transform 0.3s ease;
+          font-family: "DM Sans", sans-serif;
+        }
+
+        /* Top gradient strip */
+        #scm-sidebar::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(
+            90deg,
+            var(--accent),
+            var(--accent2),
+            var(--accent3)
+          );
+        }
+
+        /* Logo */
+        .sb-logo {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 1.5rem 1.4rem 1.2rem;
+          text-decoration: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .sb-logo-icon {
+          width: 34px;
+          height: 34px;
+          border-radius: 9px;
+          background: linear-gradient(135deg, var(--accent), var(--accent2));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 0.95rem;
+          flex-shrink: 0;
+        }
+        .sb-logo-text {
+          font-family: "Syne", sans-serif;
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--text);
+          line-height: 1.2;
+        }
+        .sb-logo-sub {
+          font-size: 0.68rem;
+          color: var(--muted);
+          font-weight: 400;
+        }
+
+        /* Nav */
+        .sb-nav {
+          padding: 1rem 0.8rem;
+          flex: 1;
+        }
+
+        .sb-label {
+          font-size: 0.65rem;
+          font-weight: 600;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--muted);
+          padding: 0.5rem 0.6rem 0.3rem;
+          margin-bottom: 0.2rem;
+        }
+
+        .sb-link {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 0.65rem 0.9rem;
+          border-radius: 10px;
+          text-decoration: none;
+          color: var(--muted);
+          font-size: 0.88rem;
+          font-weight: 400;
+          transition: all 0.2s;
+          margin-bottom: 2px;
+          position: relative;
+        }
+        .sb-link:hover {
+          background: var(--surface);
+          color: var(--text);
+        }
+        .sb-link.active {
+          background: rgba(59, 126, 248, 0.08);
+          color: var(--accent);
+          font-weight: 500;
+        }
+        .sb-link.active::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 20%;
+          bottom: 20%;
+          width: 3px;
+          border-radius: 0 3px 3px 0;
+          background: var(--accent);
+        }
+        .sb-link svg,
+        .sb-link i {
+          width: 18px;
+          text-align: center;
+          flex-shrink: 0;
+          font-size: 0.95rem;
+        }
+
+        .sb-badge {
+          margin-left: auto;
+          padding: 2px 8px;
+          border-radius: 100px;
+          font-size: 0.68rem;
+          font-weight: 600;
+        }
+        .sb-badge-blue {
+          background: rgba(59, 126, 248, 0.1);
+          color: var(--accent);
+        }
+        .sb-badge-green {
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+        }
+
+        .sb-divider {
+          height: 1px;
+          background: var(--border);
+          margin: 0.6rem 0.8rem;
+        }
+
+        /* User footer */
+        .sb-footer {
+          padding: 1rem 1.2rem;
+          border-top: 1px solid var(--border);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .sb-av {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          flex-shrink: 0;
+          background: linear-gradient(135deg, var(--accent), var(--accent2));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 0.78rem;
+          color: #fff;
+        }
+        .sb-av img {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        .sb-user-name {
+          font-size: 0.85rem;
+          font-weight: 500;
+          color: var(--text);
+        }
+        .sb-user-email {
+          font-size: 0.72rem;
+          color: var(--muted);
+        }
+
+        .sb-logout {
+          margin-left: auto;
+          flex-shrink: 0;
+          width: 30px;
+          height: 30px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--muted);
+          background: transparent;
+          cursor: pointer;
+          transition: all 0.2s;
+          border: 1px solid var(--border);
+        }
+        .sb-logout:hover {
+          background: #fee2e2;
+          color: #ef4444;
+          border-color: #fca5a5;
+        }
+
+        /* Mobile toggle button */
+        #sb-toggle {
+          display: none;
+          position: fixed;
+          top: 1rem;
+          left: 1rem;
+          z-index: 1000;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: #fff;
+          border: 1px solid var(--border);
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: var(--text);
+        }
+
+        /* Overlay */
+        #sb-overlay {
+          display: none;
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.3);
+          z-index: 998;
+          backdrop-filter: blur(2px);
+        }
+        #sb-overlay.show {
+          display: block;
+        }
+
+        @media (max-width: 768px) {
+          #scm-sidebar {
+            transform: translateX(-100%);
+          }
+          #scm-sidebar.open {
+            transform: translateX(0);
+          }
+          #sb-toggle {
+            display: flex;
+          }
+        }
+      </style>
+
+      <!-- Mobile toggle -->
+      <button id="sb-toggle" onclick="sbToggle()" aria-label="Toggle Sidebar">
+        <svg
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
         >
+          <path d="M3 12h18M3 6h18M3 18h18" />
+        </svg>
+      </button>
+
+      <!-- Overlay -->
+      <div id="sb-overlay" onclick="sbToggle()"></div>
+
+      <!-- Logo -->
+      <a th:href="@{/}" href="/" class="sb-logo">
+        <div class="sb-logo-icon">
           <svg
-            class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 22 21"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
           >
             <path
-              d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"
-            />
-            <path
-              d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"
             />
           </svg>
-          <span class="ms-3">Dashboard</span>
-        </a>
-      </li>
-      <li>
+        </div>
+        <div>
+          <div class="sb-logo-text">SCM</div>
+          <div class="sb-logo-sub">Smart Contact Manager</div>
+        </div>
+      </a>
+
+      <!-- Nav links -->
+      <nav class="sb-nav">
+        <div class="sb-label">Main</div>
+
         <a
-          data-th-href="@{'/user/profile'}"
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+          data-th-href="@{/user/dashboard}"
+          href="/user/dashboard"
+          class="sb-link"
+          id="link-dashboard"
         >
           <svg
-            class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 18 18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
           >
-            <path
-              d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z"
-            />
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
           </svg>
-          <span class="flex-1 ms-3 whitespace-nowrap">Profile</span>
-          <span
-            class="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-green-300"
-            >Manage</span
-          >
+          Dashboard
         </a>
-      </li>
-      <li>
+
+        <a
+          data-th-href="@{/user/profile}"
+          href="/user/profile"
+          class="sb-link"
+          id="link-profile"
+        >
+          <svg
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          Profile
+          <span class="sb-badge sb-badge-green">You</span>
+        </a>
+
+        <div class="sb-divider"></div>
+        <div class="sb-label">Contacts</div>
+
         <a
           data-th-href="@{/user/contacts/add}"
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+          href="/user/contacts/add"
+          class="sb-link"
+          id="link-add"
         >
-          <i class="fa-solid fa-address-book h-5 w-7"></i>
-          <span class="flex-1 ms-3 whitespace-nowrap">Add Contact</span>
-          <span
-            class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300"
-            >3</span
+          <svg
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
           >
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <line x1="19" y1="8" x2="19" y2="14" />
+            <line x1="22" y1="11" x2="16" y2="11" />
+          </svg>
+          Add Contact
+          <span class="sb-badge sb-badge-blue">New</span>
         </a>
-      </li>
-      <li>
+
         <a
           data-th-href="@{/user/contacts/view}"
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-        >
-          <i class="fa-solid fa-users h-5 w-5"></i>
-          <span class="flex-1 ms-3 whitespace-nowrap">Contacts</span>
-        </a>
-      </li>
-      <li>
-        <a
-          href="#"
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+          href="/user/contacts/view"
+          class="sb-link"
+          id="link-contacts"
         >
           <svg
-            class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 18 20"
-          >
-            <path
-              d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.086 17.846A2 2 0 0 0 2.08 20h13.84a2 2 0 0 0 1.994-2.153L17 5.923ZM7 9a1 1 0 0 1-2 0V7h2v2Zm0-5a2 2 0 1 1 4 0v1H7V4Zm6 5a1 1 0 1 1-2 0V7h2v2Z"
-            />
-          </svg>
-          <span class="flex-1 ms-3 whitespace-nowrap">Products</span>
-        </a>
-      </li>
-      <li>
-        <a
-          href="#"
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-        >
-          <svg
-            class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
             fill="none"
-            viewBox="0 0 18 16"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
           >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3"
-            />
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
           </svg>
-          <span class="flex-1 ms-3 whitespace-nowrap">Sign In</span>
+          All Contacts
         </a>
-      </li>
-      <li>
+
+        <div class="sb-divider"></div>
+        <div class="sb-label">Account</div>
+
         <a
-          href="#"
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+          data-th-href="@{/contact/settings}"
+          href="/contact/settings"
+          class="sb-link"
+          id="link-settings"
         >
           <svg
-            class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
           >
+            <circle cx="12" cy="12" r="3" />
             <path
-              d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.96 2.96 0 0 0 .13 5H5Z"
-            />
-            <path
-              d="M6.737 11.061a2.961 2.961 0 0 1 .81-1.515l6.117-6.116A4.839 4.839 0 0 1 16 2.141V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H0v11a1.969 1.969 0 0 0 1.933 2h12.134A1.97 1.97 0 0 0 16 18v-3.093l-1.546 1.546c-.413.413-.94.695-1.513.81l-3.4.679a2.947 2.947 0 0 1-1.85-.227 2.96 2.96 0 0 1-1.635-3.257l.681-3.397Z"
-            />
-            <path
-              d="M8.961 16a.93.93 0 0 0 .189-.019l3.4-.679a.961.961 0 0 0 .49-.263l6.118-6.117a2.884 2.884 0 0 0-4.079-4.078l-6.117 6.117a.96.96 0 0 0-.263.491l-.679 3.4A.961.961 0 0 0 8.961 16Zm7.477-9.8a.958.958 0 0 1 .68-.281.961.961 0 0 1 .682 1.644l-.315.315-1.36-1.36.313-.318Zm-5.911 5.911 4.236-4.236 1.359 1.359-4.236 4.237-1.7.339.341-1.699Z"
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
             />
           </svg>
-          <span class="flex-1 ms-3 whitespace-nowrap">Sign Up</span>
+          Settings
         </a>
-      </li>
-    </ul>
-  </div>
-</aside>
+      </nav>
+
+      <!-- User footer -->
+      <div class="sb-footer">
+        <div class="sb-av">
+          <span
+            th:text="${loggedInUser != null and loggedInUser.name != null ? #strings.toUpperCase(#strings.substring(loggedInUser.name, 0, (loggedInUser.name.length() >= 2 ? 2 : 1))) : 'U'}"
+            >U</span
+          >
+        </div>
+        <div>
+          <div
+            class="sb-user-name"
+            th:text="${loggedInUser != null ? loggedInUser.name  : 'User'}"
+          >
+            User
+          </div>
+          <div
+            class="sb-user-email"
+            th:text="${loggedInUser != null ? loggedInUser.email : ''}"
+          >
+            <a
+              href="/cdn-cgi/l/email-protection"
+              class="__cf_email__"
+              data-cfemail="bdc8ced8cffdd8d0dcd4d193ded2d0"
+              >[email&#160;protected]</a
+            >
+          </div>
+        </div>
+        <form
+          th:action="@{/do-logout}"
+          action="/do-logout"
+          method="post"
+          style="margin: 0; padding: 0"
+        >
+          <button type="submit" class="sb-logout" title="Logout">
+            <svg
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"
+              />
+            </svg>
+          </button>
+        </form>
+      </div>
+
+      <script
+        data-cfasync="false"
+        src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
+      ></script>
+      <script>
+        // Mobile toggle
+        function sbToggle() {
+          document.getElementById("scm-sidebar").classList.toggle("open");
+          document.getElementById("sb-overlay").classList.toggle("show");
+        }
+
+        // Auto-highlight active link
+        const path = window.location.pathname;
+        const links = {
+          dashboard: "/user/dashboard",
+          profile: "/user/profile",
+          add: "/user/contacts/add",
+          contacts: "/user/contacts/view",
+          settings: "/contact/settings",
+        };
+        Object.entries(links).forEach(([id, href]) => {
+          if (path.startsWith(href)) {
+            const el = document.getElementById("link-" + id);
+            if (el) el.classList.add("active");
+          }
+        });
+      </script>
+    </aside>
+  </body>
+</html>

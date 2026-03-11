@@ -17,10 +17,19 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.ui.Model;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
 
 @Controller
 public class PageController {
+  @Value("${emailjs.public-key}")
+  private String emailjsPublicKey;
+
+  @Value("${emailjs.service-id}")
+  private String emailjsServiceId;
+
+  @Value("${emailjs.template-id}")
+  private String emailjsTemplateId;
 
   @Autowired
   private UserService userService;
@@ -57,8 +66,11 @@ public class PageController {
 
   // contact page
   @GetMapping("/contact")
-  public String contact() {
+  public String contact(Model model) {
     System.out.println("Contact loading");
+    model.addAttribute("emailjsPublicKey", emailjsPublicKey);
+    model.addAttribute("emailjsServiceId", emailjsServiceId);
+    model.addAttribute("emailjsTemplateId", emailjsTemplateId);
     return "contact";
   }
 

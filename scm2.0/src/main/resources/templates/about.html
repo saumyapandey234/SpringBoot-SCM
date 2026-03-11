@@ -1,21 +1,870 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" th:replace="~{base :: parent(~{::#content},~{::title})}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About page</title>
+    <title>About — Smart Contact Manager</title>
   </head>
   <body>
     <div id="content">
-      <h1>Welcome to about page</h1>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis
-        aliquid doloribus hic velit architecto nesciunt, quo quam nam dolore
-        iusto facilis voluptatum enim reiciendis at labore pariatur! Tenetur,
-        esse debitis facilis ullam impedit accusantium perspiciatis, optio
-        aperiam quod blanditiis quia, similique ea quisquam sit necessitatibus
-        alias assumenda non qui molestiae.
-      </p>
+      <style>
+        *,
+        *::before,
+        *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        :root {
+          --bg: #ffffff;
+          --surface: #f8f9fc;
+          --border: rgba(0, 0, 0, 0.08);
+          --accent: #3b7ef8;
+          --accent2: #8b5cf6;
+          --accent3: #10b981;
+          --text: #0f172a;
+          --muted: #64748b;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        body {
+          background: #ffffff !important;
+          color: var(--text) !important;
+          font-family: "DM Sans", sans-serif;
+          font-weight: 300;
+          overflow-x: hidden;
+          cursor: none;
+        }
+
+        /* Cursor */
+        .cursor {
+          width: 12px;
+          height: 12px;
+          background: var(--accent);
+          border-radius: 50%;
+          position: fixed;
+          top: 0;
+          left: 0;
+          pointer-events: none;
+          z-index: 9999;
+          transition: transform 0.15s ease;
+          transform: translate(-50%, -50%);
+        }
+        .cursor-ring {
+          width: 36px;
+          height: 36px;
+          border: 1.5px solid rgba(59, 126, 248, 0.45);
+          border-radius: 50%;
+          position: fixed;
+          top: 0;
+          left: 0;
+          pointer-events: none;
+          z-index: 9998;
+          transition:
+            transform 0.35s ease,
+            width 0.2s,
+            height 0.2s;
+          transform: translate(-50%, -50%);
+        }
+
+        /* BG grid */
+        body::before {
+          content: "";
+          position: fixed;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(59, 126, 248, 0.05) 1px, transparent 1px),
+            linear-gradient(
+              90deg,
+              rgba(59, 126, 248, 0.05) 1px,
+              transparent 1px
+            );
+          background-size: 60px 60px;
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        #content {
+          position: relative;
+          z-index: 2;
+        }
+
+        /* ── Shared ── */
+        .scm-section {
+          padding: 5rem 2rem;
+          max-width: 1160px;
+          margin: 0 auto;
+        }
+        .scm-divider {
+          height: 1px;
+          background: var(--border);
+          max-width: 1160px;
+          margin: 0 auto;
+        }
+
+        .section-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          color: var(--accent);
+          font-size: 0.78rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          font-weight: 500;
+          margin-bottom: 1rem;
+        }
+        .section-tag::before {
+          content: "";
+          display: block;
+          width: 24px;
+          height: 1.5px;
+          background: var(--accent);
+        }
+
+        .section-title {
+          font-family: "Syne", sans-serif;
+          font-size: clamp(2rem, 4vw, 3rem);
+          font-weight: 700;
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          margin-bottom: 1rem;
+          color: var(--text);
+        }
+        .section-sub {
+          color: var(--muted);
+          font-size: 1rem;
+          line-height: 1.7;
+          max-width: 500px;
+          margin-bottom: 3rem;
+          font-weight: 300;
+        }
+
+        /* Scroll reveal */
+        .scroll-reveal {
+          opacity: 0;
+          transform: translateY(28px);
+          transition:
+            opacity 0.6s ease,
+            transform 0.6s ease;
+        }
+        .scroll-reveal.visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(22px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* ══════════════════════════
+           PAGE HEADER
+        ══════════════════════════ */
+        .about-header {
+          min-height: 55vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 7rem 2rem 4rem;
+          position: relative;
+          overflow: hidden;
+        }
+
+        /* Orbs */
+        .about-header .orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(90px);
+          pointer-events: none;
+          animation: orbFloat 8s ease-in-out infinite;
+        }
+        .orb-a {
+          width: 480px;
+          height: 480px;
+          background: radial-gradient(
+            circle,
+            rgba(59, 126, 248, 0.12),
+            transparent 70%
+          );
+          top: -120px;
+          left: -140px;
+        }
+        .orb-b {
+          width: 380px;
+          height: 380px;
+          background: radial-gradient(
+            circle,
+            rgba(139, 92, 246, 0.09),
+            transparent 70%
+          );
+          bottom: -80px;
+          right: -100px;
+          animation-delay: -4s;
+        }
+        @keyframes orbFloat {
+          0%,
+          100% {
+            transform: translateY(0) scale(1);
+          }
+          50% {
+            transform: translateY(-26px) scale(1.04);
+          }
+        }
+
+        .about-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(59, 126, 248, 0.08);
+          border: 1px solid rgba(59, 126, 248, 0.2);
+          border-radius: 100px;
+          padding: 6px 16px;
+          font-size: 0.78rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--accent);
+          margin-bottom: 1.8rem;
+          opacity: 0;
+          animation: fadeUp 0.6s ease 0.2s forwards;
+        }
+        .badge-dot {
+          width: 6px;
+          height: 6px;
+          background: var(--accent3);
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+          0%,
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.4;
+            transform: scale(0.75);
+          }
+        }
+
+        .about-title {
+          font-family: "Syne", sans-serif;
+          font-size: clamp(2.8rem, 7vw, 5.5rem);
+          font-weight: 800;
+          line-height: 1;
+          letter-spacing: -0.03em;
+          margin-bottom: 1.4rem;
+          opacity: 0;
+          animation: fadeUp 0.7s ease 0.35s forwards;
+        }
+        .about-title .line1 {
+          display: block;
+          color: var(--text);
+        }
+        .about-title .line2 {
+          display: block;
+          background: linear-gradient(
+            135deg,
+            var(--accent),
+            var(--accent2),
+            var(--accent3)
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          background-size: 200% 200%;
+          animation:
+            gradShift 4s ease infinite,
+            fadeUp 0.7s ease 0.35s forwards;
+        }
+        @keyframes gradShift {
+          0%,
+          100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+
+        .about-sub {
+          font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+          color: var(--muted);
+          max-width: 520px;
+          line-height: 1.75;
+          font-weight: 300;
+          opacity: 0;
+          animation: fadeUp 0.7s ease 0.5s forwards;
+        }
+
+        /* ══════════════════════════
+           ABOUT CARDS (3 cols)
+        ══════════════════════════ */
+        .about-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 1px;
+          background: var(--border);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+        }
+        .a-card {
+          background: var(--surface);
+          padding: 2.4rem;
+          position: relative;
+          overflow: hidden;
+          transition:
+            background 0.3s,
+            box-shadow 0.3s;
+        }
+        .a-card::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            var(--cc, var(--accent)),
+            transparent
+          );
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+        .a-card:hover {
+          background: #fff;
+          box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+        }
+        .a-card:hover::before {
+          opacity: 1;
+        }
+        .a-card[data-c="blue"] {
+          --cc: #3b7ef8;
+        }
+        .a-card[data-c="purple"] {
+          --cc: #8b5cf6;
+        }
+        .a-card[data-c="green"] {
+          --cc: #10b981;
+        }
+
+        .a-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.4rem;
+          margin-bottom: 1.4rem;
+          background: rgba(59, 126, 248, 0.08);
+          border: 1px solid rgba(59, 126, 248, 0.12);
+          transition: transform 0.3s;
+        }
+        .a-card:hover .a-icon {
+          transform: scale(1.1) rotate(-5deg);
+        }
+        .a-title {
+          font-family: "Syne", sans-serif;
+          font-size: 1.05rem;
+          font-weight: 600;
+          color: var(--text);
+          margin-bottom: 0.5rem;
+        }
+        .a-desc {
+          font-size: 0.9rem;
+          color: var(--muted);
+          line-height: 1.65;
+          font-weight: 300;
+        }
+
+        /* ══════════════════════════
+           STORY SECTION
+        ══════════════════════════ */
+        .story-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 5rem;
+          align-items: center;
+        }
+        .story-text p {
+          font-size: 1rem;
+          line-height: 1.8;
+          color: var(--muted);
+          font-weight: 300;
+          margin-bottom: 1.1rem;
+        }
+        .story-text p:last-child {
+          margin-bottom: 0;
+        }
+        .story-text strong {
+          color: var(--text);
+          font-weight: 600;
+        }
+
+        .story-quote {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-left: 3px solid var(--accent);
+          border-radius: 0 14px 14px 0;
+          padding: 2rem 2.2rem;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        }
+        .quote-text {
+          font-family: "Syne", sans-serif;
+          font-size: 1.15rem;
+          font-weight: 600;
+          color: var(--text);
+          line-height: 1.55;
+          margin-bottom: 0.8rem;
+        }
+        .quote-text span {
+          background: linear-gradient(135deg, var(--accent), var(--accent2));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .quote-by {
+          font-size: 0.78rem;
+          color: var(--muted);
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+        }
+
+        /* ══════════════════════════
+           CREATOR CARD
+        ══════════════════════════ */
+        .creator-card {
+          display: flex;
+          align-items: center;
+          gap: 2.5rem;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          padding: 2.8rem;
+          box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+          transition: box-shadow 0.3s;
+        }
+        .creator-card:hover {
+          box-shadow: 0 8px 36px rgba(59, 126, 248, 0.12);
+        }
+        .creator-av {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          flex-shrink: 0;
+          background: linear-gradient(135deg, var(--accent), var(--accent2));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: "Syne", sans-serif;
+          font-weight: 700;
+          font-size: 1.6rem;
+          color: #fff;
+        }
+        .creator-info {
+        }
+        .creator-role {
+          font-size: 0.72rem;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--accent);
+          margin-bottom: 0.3rem;
+        }
+        .creator-name {
+          font-family: "Syne", sans-serif;
+          font-size: 1.4rem;
+          font-weight: 700;
+          color: var(--text);
+          margin-bottom: 0.6rem;
+        }
+        .creator-bio {
+          font-size: 0.9rem;
+          color: var(--muted);
+          line-height: 1.7;
+          font-weight: 300;
+          max-width: 500px;
+        }
+        .creator-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-top: 1rem;
+        }
+        .c-tag {
+          padding: 0.3rem 0.9rem;
+          background: #fff;
+          border: 1px solid var(--border);
+          border-radius: 100px;
+          font-size: 0.75rem;
+          color: var(--muted);
+          transition: all 0.2s;
+        }
+        .c-tag:hover {
+          border-color: var(--accent);
+          color: var(--accent);
+        }
+
+        /* ══════════════════════════
+           CTA
+        ══════════════════════════ */
+        .cta-section {
+          padding: 6rem 2rem;
+          text-align: center;
+          background: var(--surface);
+        }
+        .cta-inner {
+          max-width: 680px;
+          margin: 0 auto;
+          background: #fff;
+          border: 1px solid rgba(59, 126, 248, 0.15);
+          border-radius: 24px;
+          padding: 4rem 3rem;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 8px 48px rgba(59, 126, 248, 0.1);
+        }
+        .cta-inner::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(
+            ellipse at 50% 0%,
+            rgba(59, 126, 248, 0.07),
+            transparent 60%
+          );
+          pointer-events: none;
+        }
+        .cta-inner > * {
+          position: relative;
+          z-index: 1;
+        }
+        .cta-title {
+          font-family: "Syne", sans-serif;
+          font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          margin-bottom: 0.8rem;
+          color: var(--text);
+        }
+        .cta-sub {
+          color: var(--muted);
+          margin-bottom: 2rem;
+          font-size: 0.95rem;
+          line-height: 1.7;
+          font-weight: 300;
+        }
+
+        .btn-primary {
+          background: var(--accent);
+          color: #fff;
+          border: none;
+          padding: 0.8rem 2rem;
+          border-radius: 10px;
+          font-family: "DM Sans", sans-serif;
+          font-size: 0.9rem;
+          font-weight: 500;
+          cursor: none;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.25s ease;
+          box-shadow: 0 4px 20px rgba(59, 126, 248, 0.35);
+          position: relative;
+          overflow: hidden;
+        }
+        .btn-primary:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 32px rgba(59, 126, 248, 0.45);
+          color: #fff;
+        }
+
+        .btn-ghost {
+          background: transparent;
+          color: var(--text);
+          border: 1.5px solid rgba(0, 0, 0, 0.12);
+          padding: 0.8rem 2rem;
+          border-radius: 10px;
+          font-family: "DM Sans", sans-serif;
+          font-size: 0.9rem;
+          font-weight: 500;
+          cursor: none;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.25s ease;
+        }
+        .btn-ghost:hover {
+          border-color: var(--accent);
+          color: var(--accent);
+          transform: translateY(-3px);
+        }
+
+        .cta-btns {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .story-grid {
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+          }
+          .creator-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+          }
+          .creator-tags {
+            justify-content: center;
+          }
+        }
+        @media (max-width: 600px) {
+          .scm-section {
+            padding: 4rem 1.5rem;
+          }
+          .about-header {
+            padding: 5rem 1.5rem 3rem;
+          }
+          .cta-inner {
+            padding: 2.5rem 1.5rem;
+          }
+        }
+      </style>
+
+      <!-- Cursor -->
+      <div class="cursor" id="cursor"></div>
+      <div class="cursor-ring" id="cursorRing"></div>
+
+      <!-- ══ PAGE HEADER ══ -->
+      <section class="about-header">
+        <div class="orb orb-a"></div>
+        <div class="orb orb-b"></div>
+
+        <div class="about-badge">
+          <span class="badge-dot"></span> About this Project
+        </div>
+
+        <h1 class="about-title">
+          <span class="line1">Built for Friends,</span>
+          <span class="line2">Built for Fun.</span>
+        </h1>
+
+        <p class="about-sub">
+          A self-made contact manager — created to learn, to help friends save
+          contacts easily, and for the pure joy of building something real.
+        </p>
+      </section>
+
+      <div class="scm-divider"></div>
+
+      <!-- ══ WHAT IS THIS ══ -->
+      <section class="scm-section">
+        <div class="scroll-reveal">
+          <div class="section-tag">Overview</div>
+          <h2 class="section-title">What is Smart<br />Contact Manager?</h2>
+          <p class="section-sub">
+            Three simple things this project is all about.
+          </p>
+        </div>
+
+        <div class="about-cards scroll-reveal">
+          <div class="a-card" data-c="blue">
+            <div class="a-icon">🎯</div>
+            <div class="a-title">A Learning Project</div>
+            <div class="a-desc">
+              Built from scratch to understand how real full-stack apps work —
+              Spring Boot, OAuth, databases, file uploads, payments. Every
+              feature taught something new.
+            </div>
+          </div>
+          <div class="a-card" data-c="purple">
+            <div class="a-icon">👫</div>
+            <div class="a-title">Made for Friends</div>
+            <div class="a-desc">
+              The goal was simple — help friends save their contacts easily in
+              one place, with social links, a photo, and everything they need at
+              a glance.
+            </div>
+          </div>
+          <div class="a-card" data-c="green">
+            <div class="a-icon">😄</div>
+            <div class="a-title">Just for Fun</div>
+            <div class="a-desc">
+              No startup ambitions. No product launch. Just the genuine
+              satisfaction of building something that actually works and people
+              can actually use.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="scm-divider"></div>
+
+      <!-- ══ THE STORY ══ -->
+      <section class="scm-section">
+        <div class="story-grid">
+          <div class="scroll-reveal">
+            <div class="section-tag">The Story</div>
+            <h2 class="section-title">Why was this<br />built?</h2>
+            <div class="story-text">
+              <p>
+                It started as a simple question —
+                <strong>what if saving a contact was actually complete?</strong>
+                Not just a name and number, but email, social links, a photo —
+                everything in one place.
+              </p>
+              <p>
+                This project was never meant to be a product or a startup. It
+                was built purely to
+                <strong>learn how real applications work</strong> — Spring
+                Security, OAuth logins, cloud storage, payment gateways — one
+                feature at a time.
+              </p>
+              <p>
+                And along the way, it became something
+                <strong>actually useful for friends</strong>. That's the whole
+                point.
+              </p>
+            </div>
+          </div>
+
+          <div class="scroll-reveal" style="transition-delay: 0.15s">
+            <div class="story-quote">
+              <div class="quote-text">
+                "The best way to learn is to
+                <span>build something real</span> — even if it's just for your
+                friends."
+              </div>
+              <div class="quote-by">— The Developer</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="scm-divider"></div>
+
+      <!-- ══ CREATOR ══ -->
+      <section class="scm-section">
+        <div class="scroll-reveal">
+          <div class="section-tag">The Developer</div>
+          <h2 class="section-title">Who built this?</h2>
+        </div>
+
+        <div class="creator-card scroll-reveal">
+          <div class="creator-av">Dev</div>
+          <div class="creator-info">
+            <div class="creator-role">Creator &amp; Developer</div>
+            <div class="creator-name">A Curious Learner</div>
+            <div class="creator-bio">
+              Just someone who loves building things and learning by doing. This
+              project was built to understand how real-world Java full-stack
+              apps come together — Spring Boot, Thymeleaf, OAuth, JPA, cloud
+              storage, Razorpay — one bug at a time, one feature at a time.
+            </div>
+            <div class="creator-tags">
+              <span class="c-tag">Spring Boot</span>
+              <span class="c-tag">Java Developer</span>
+              <span class="c-tag">Full Stack Learner</span>
+              <span class="c-tag">Building for Fun</span>
+              <span class="c-tag">Always Learning</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ CTA ══ -->
+      <section class="cta-section">
+        <div class="cta-inner scroll-reveal">
+          <h2 class="cta-title">Want to try it yourself?</h2>
+          <p class="cta-sub">
+            Sign up for free and see what this little learning project can do.
+            Your contacts, organised. No fuss.
+          </p>
+          <div class="cta-btns">
+            <a th:href="@{/register}" href="/register" class="btn-primary">
+              <svg
+                width="15"
+                height="15"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+              Create Free Account
+            </a>
+            <a th:href="@{/login}" href="/login" class="btn-ghost">Sign In</a>
+          </div>
+        </div>
+      </section>
+
+      <script>
+        // Cursor
+        const cursor = document.getElementById("cursor");
+        const ring = document.getElementById("cursorRing");
+        let mx = 0,
+          my = 0,
+          rx = 0,
+          ry = 0;
+        document.addEventListener("mousemove", (e) => {
+          mx = e.clientX;
+          my = e.clientY;
+          cursor.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+        });
+        (function loop() {
+          rx += (mx - rx) * 0.12;
+          ry += (my - ry) * 0.12;
+          ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+          requestAnimationFrame(loop);
+        })();
+        document
+          .querySelectorAll("a,button,.a-card,.creator-card")
+          .forEach((el) => {
+            el.addEventListener("mouseenter", () => {
+              ring.style.width = "52px";
+              ring.style.height = "52px";
+            });
+            el.addEventListener("mouseleave", () => {
+              ring.style.width = "36px";
+              ring.style.height = "36px";
+            });
+          });
+
+        // Scroll reveal
+        const obs = new IntersectionObserver(
+          (es) =>
+            es.forEach((e) => {
+              if (e.isIntersecting) e.target.classList.add("visible");
+            }),
+          { threshold: 0.1 },
+        );
+        document
+          .querySelectorAll(".scroll-reveal")
+          .forEach((el) => obs.observe(el));
+      </script>
     </div>
   </body>
 </html>
