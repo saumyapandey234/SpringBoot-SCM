@@ -8,22 +8,22 @@
       pkill -f "scm2.0" || true
       sleep 2
       mkdir -p /home/ubuntu/app
-      nohup java \
-        -DDB_URL="${{ secrets.DB_URL }}" \
-        -DDB_USERNAME="${{ secrets.DB_USERNAME }}" \
-        -DDB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-        -DGOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
-        -DGOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
-        -DGIT_CLIENT_ID="${{ secrets.GIT_CLIENT_ID }}" \
-        -DGIT_CLIENT_SECRET="${{ secrets.GIT_CLIENT_SECRET }}" \
-        -DCLOUDINARY_CLOUD_NAME="${{ secrets.CLOUDINARY_CLOUD_NAME }}" \
-        -DCLOUDINARY_API_KEY="${{ secrets.CLOUDINARY_API_KEY }}" \
-        -DCLOUDINARY_API_SECRET="${{ secrets.CLOUDINARY_API_SECRET }}" \
-        -DRAZORPAY_KEY_ID="${{ secrets.RAZORPAY_KEY_ID }}" \
-        -DRAZORPAY_KEY_SECRET="${{ secrets.RAZORPAY_KEY_SECRET }}" \
-        -DEMAILJS_PUBLIC_KEY="${{ secrets.EMAILJS_PUBLIC_KEY }}" \
-        -DEMAILJS_SERVICE_ID="${{ secrets.EMAILJS_SERVICE_ID }}" \
-        -DEMAILJS_TEMPLATE_ID="${{ secrets.EMAILJS_TEMPLATE_ID }}" \
-        -jar /home/ubuntu/app/*.jar > /home/ubuntu/app/app.log 2>&1 &
+      nohup java -jar /home/ubuntu/app/*.jar \
+        --spring.datasource.url="${{ secrets.DB_URL }}" \
+        --spring.datasource.username="${{ secrets.DB_USERNAME }}" \
+        --spring.datasource.password="${{ secrets.DB_PASSWORD }}" \
+        --spring.security.oauth2.client.registration.google.client-id="${{ secrets.GOOGLE_CLIENT_ID }}" \
+        --spring.security.oauth2.client.registration.google.client-secret="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+        --spring.security.oauth2.client.registration.github.client-id="${{ secrets.GIT_CLIENT_ID }}" \
+        --spring.security.oauth2.client.registration.github.client-secret="${{ secrets.GIT_CLIENT_SECRET }}" \
+        --cloudinary.cloud-name="${{ secrets.CLOUDINARY_CLOUD_NAME }}" \
+        --cloudinary.api-key="${{ secrets.CLOUDINARY_API_KEY }}" \
+        --cloudinary.api-secret="${{ secrets.CLOUDINARY_API_SECRET }}" \
+        --razorpay.key.id="${{ secrets.RAZORPAY_KEY_ID }}" \
+        --razorpay.key.secret="${{ secrets.RAZORPAY_KEY_SECRET }}" \
+        --emailjs.public-key="${{ secrets.EMAILJS_PUBLIC_KEY }}" \
+        --emailjs.service-id="${{ secrets.EMAILJS_SERVICE_ID }}" \
+        --emailjs.template-id="${{ secrets.EMAILJS_TEMPLATE_ID }}" \
+        > /home/ubuntu/app/app.log 2>&1 &
       disown
       echo "Deployed successfully!"
