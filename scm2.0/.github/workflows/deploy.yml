@@ -42,21 +42,22 @@ jobs:
             pkill -f "scm2.0" || true
             sleep 2
             mkdir -p /home/ubuntu/app
-            export DB_URL="${{ secrets.DB_URL }}"
-            export DB_USERNAME="${{ secrets.DB_USERNAME }}"
-            export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
-            export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
-            export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
-            export GIT_CLIENT_ID="${{ secrets.GIT_CLIENT_ID }}"
-            export GIT_CLIENT_SECRET="${{ secrets.GIT_CLIENT_SECRET }}"
-            export CLOUDINARY_CLOUD_NAME="${{ secrets.CLOUDINARY_CLOUD_NAME }}"
-            export CLOUDINARY_API_KEY="${{ secrets.CLOUDINARY_API_KEY }}"
-            export CLOUDINARY_API_SECRET="${{ secrets.CLOUDINARY_API_SECRET }}"
-            export RAZORPAY_KEY_ID="${{ secrets.RAZORPAY_KEY_ID }}"
-            export RAZORPAY_KEY_SECRET="${{ secrets.RAZORPAY_KEY_SECRET }}"
-            export EMAILJS_PUBLIC_KEY="${{ secrets.EMAILJS_PUBLIC_KEY }}"
-            export EMAILJS_SERVICE_ID="${{ secrets.EMAILJS_SERVICE_ID }}"
-            export EMAILJS_TEMPLATE_ID="${{ secrets.EMAILJS_TEMPLATE_ID }}"
-            nohup java -jar /home/ubuntu/app/*.jar > /home/ubuntu/app/app.log 2>&1 &
+            nohup java \
+              -DDB_URL="${{ secrets.DB_URL }}" \
+              -DDB_USERNAME="${{ secrets.DB_USERNAME }}" \
+              -DDB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -DGOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
+              -DGOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+              -DGIT_CLIENT_ID="${{ secrets.GIT_CLIENT_ID }}" \
+              -DGIT_CLIENT_SECRET="${{ secrets.GIT_CLIENT_SECRET }}" \
+              -DCLOUDINARY_CLOUD_NAME="${{ secrets.CLOUDINARY_CLOUD_NAME }}" \
+              -DCLOUDINARY_API_KEY="${{ secrets.CLOUDINARY_API_KEY }}" \
+              -DCLOUDINARY_API_SECRET="${{ secrets.CLOUDINARY_API_SECRET }}" \
+              -DRAZORPAY_KEY_ID="${{ secrets.RAZORPAY_KEY_ID }}" \
+              -DRAZORPAY_KEY_SECRET="${{ secrets.RAZORPAY_KEY_SECRET }}" \
+              -DEMAILJS_PUBLIC_KEY="${{ secrets.EMAILJS_PUBLIC_KEY }}" \
+              -DEMAILJS_SERVICE_ID="${{ secrets.EMAILJS_SERVICE_ID }}" \
+              -DEMAILJS_TEMPLATE_ID="${{ secrets.EMAILJS_TEMPLATE_ID }}" \
+              -jar /home/ubuntu/app/*.jar > /home/ubuntu/app/app.log 2>&1 &
             disown
             echo "Deployed successfully!"
