@@ -38,9 +38,12 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          request_pty: false
           script: |
             pkill -f "scm2.0" || true
             sleep 2
             mkdir -p /home/ubuntu/app
-            setsid java -jar /home/ubuntu/app/*.jar --spring.datasource.url="${{ secrets.DB_URL }}" --spring.datasource.username="${{ secrets.DB_USERNAME }}" --spring.datasource.password="${{ secrets.DB_PASSWORD }}" --spring.security.oauth2.client.registration.google.client-id="${{ secrets.GOOGLE_CLIENT_ID }}" --spring.security.oauth2.client.registration.google.client-secret="${{ secrets.GOOGLE_CLIENT_SECRET }}" --spring.security.oauth2.client.registration.github.client-id="${{ secrets.GIT_CLIENT_ID }}" --spring.security.oauth2.client.registration.github.client-secret="${{ secrets.GIT_CLIENT_SECRET }}" --cloudinary.cloud-name="${{ secrets.CLOUDINARY_CLOUD_NAME }}" --cloudinary.api-key="${{ secrets.CLOUDINARY_API_KEY }}" --cloudinary.api-secret="${{ secrets.CLOUDINARY_API_SECRET }}" --razorpay.key.id="${{ secrets.RAZORPAY_KEY_ID }}" --razorpay.key.secret="${{ secrets.RAZORPAY_KEY_SECRET }}" --emailjs.public-key="${{ secrets.EMAILJS_PUBLIC_KEY }}" --emailjs.service-id="${{ secrets.EMAILJS_SERVICE_ID }}" --emailjs.template-id="${{ secrets.EMAILJS_TEMPLATE_ID }}" > /home/ubuntu/app/app.log 2>&1 &
+            nohup java -jar /home/ubuntu/app/*.jar --spring.datasource.url="${{ secrets.DB_URL }}" --spring.datasource.username="${{ secrets.DB_USERNAME }}" --spring.datasource.password="${{ secrets.DB_PASSWORD }}" --spring.security.oauth2.client.registration.google.client-id="${{ secrets.GOOGLE_CLIENT_ID }}" --spring.security.oauth2.client.registration.google.client-secret="${{ secrets.GOOGLE_CLIENT_SECRET }}" --spring.security.oauth2.client.registration.github.client-id="${{ secrets.GIT_CLIENT_ID }}" --spring.security.oauth2.client.registration.github.client-secret="${{ secrets.GIT_CLIENT_SECRET }}" --cloudinary.cloud-name="${{ secrets.CLOUDINARY_CLOUD_NAME }}" --cloudinary.api-key="${{ secrets.CLOUDINARY_API_KEY }}" --cloudinary.api-secret="${{ secrets.CLOUDINARY_API_SECRET }}" --razorpay.key.id="${{ secrets.RAZORPAY_KEY_ID }}" --razorpay.key.secret="${{ secrets.RAZORPAY_KEY_SECRET }}" --emailjs.public-key="${{ secrets.EMAILJS_PUBLIC_KEY }}" --emailjs.service-id="${{ secrets.EMAILJS_SERVICE_ID }}" --emailjs.template-id="${{ secrets.EMAILJS_TEMPLATE_ID }}" > /home/ubuntu/app/app.log 2>&1 &
+            disown
+            sleep 5
             echo "Deployed successfully!"
