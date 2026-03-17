@@ -32,63 +32,79 @@ jobs:
           target: "/home/ubuntu/app"
           strip_components: 2
 
+      - name: Write env file to EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            mkdir -p /home/ubuntu/app
+            # Write all secrets into a persistent .env file on EC2
+            cat > /home/ubuntu/app/.env << EOF
+            DB_URL=${{ secrets.DB_URL }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            GIT_CLIENT_ID=${{ secrets.GIT_CLIENT_ID }}
+            GIT_CLIENT_SECRET=${{ secrets.GIT_CLIENT_SECRET }}
+            CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+            CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+            CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
+            RAZORPAY_KEY_ID=${{ secrets.RAZORPAY_KEY_ID }}
+            RAZORPAY_KEY_SECRET=${{ secrets.RAZORPAY_KEY_SECRET }}
+            EMAILJS_PUBLIC_KEY=${{ secrets.EMAILJS_PUBLIC_KEY }}
+            EMAILJS_SERVICE_ID=${{ secrets.EMAILJS_SERVICE_ID }}
+            EMAILJS_TEMPLATE_ID=${{ secrets.EMAILJS_TEMPLATE_ID }}
+            EOF
+            chmod 600 /home/ubuntu/app/.env
+            echo "Env file written."
+
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          script_stop: false
           script: |
-            # Kill existing process if running
+            # Kill old process
             pkill -f "scm2.0" || true
             sleep 2
 
-            mkdir -p /home/ubuntu/app
+            # Load env vars from file
+            set -a
+            source /home/ubuntu/app/.env
+            set +a
 
-            # Write a dedicated start script to avoid SSH session issues
-            cat > /home/ubuntu/app/start.sh << 'EOF'
-            #!/bin/bash
-            exec java -jar /home/ubuntu/app/*.jar \
-              --spring.datasource.url="$DB_URL" \
-              --spring.datasource.username="$DB_USERNAME" \
-              --spring.datasource.password="$DB_PASSWORD" \
-              --spring.security.oauth2.client.registration.google.client-id="$GOOGLE_CLIENT_ID" \
-              --spring.security.oauth2.client.registration.google.client-secret="$GOOGLE_CLIENT_SECRET" \
-              --spring.security.oauth2.client.registration.github.client-id="$GIT_CLIENT_ID" \
-              --spring.security.oauth2.client.registration.github.client-secret="$GIT_CLIENT_SECRET" \
-              --cloudinary.cloud-name="$CLOUDINARY_CLOUD_NAME" \
-              --cloudinary.api-key="$CLOUDINARY_API_KEY" \
-              --cloudinary.api-secret="$CLOUDINARY_API_SECRET" \
-              --razorpay.key.id="$RAZORPAY_KEY_ID" \
-              --razorpay.key.secret="$RAZORPAY_KEY_SECRET" \
-              --emailjs.public-key="$EMAILJS_PUBLIC_KEY" \
-              --emailjs.service-id="$EMAILJS_SERVICE_ID" \
-              --emailjs.template-id="$EMAILJS_TEMPLATE_ID" \
-              >> /home/ubuntu/app/app.log 2>&1
-            EOF
+            # Launch fully detached
+            setsid bash -c '
+              source /home/ubuntu/app/.env
+              java -jar /home/ubuntu/app/*.jar \
+                --spring.datasource.url="$DB_URL" \
+                --spring.datasource.username="$DB_USERNAME" \
+                --spring.datasource.password="$DB_PASSWORD" \
+                --spring.security.oauth2.client.registration.google.client-id="$GOOGLE_CLIENT_ID" \
+                --spring.security.oauth2.client.registration.google.client-secret="$GOOGLE_CLIENT_SECRET" \
+                --spring.security.oauth2.client.registration.github.client-id="$GIT_CLIENT_ID" \
+                --spring.security.oauth2.client.registration.github.client-secret="$GIT_CLIENT_SECRET" \
+                --cloudinary.cloud-name="$CLOUDINARY_CLOUD_NAME" \
+                --cloudinary.api-key="$CLOUDINARY_API_KEY" \
+                --cloudinary.api-secret="$CLOUDINARY_API_SECRET" \
+                --razorpay.key.id="$RAZORPAY_KEY_ID" \
+                --razorpay.key.secret="$RAZORPAY_KEY_SECRET" \
+                --emailjs.public-key="$EMAILJS_PUBLIC_KEY" \
+                --emailjs.service-id="$EMAILJS_SERVICE_ID" \
+                --emailjs.template-id="$EMAILJS_TEMPLATE_ID" \
+                >> /home/ubuntu/app/app.log 2>&1
+            ' </dev/null >/dev/null 2>&1 &
 
-            chmod +x /home/ubuntu/app/start.sh
-
-            # Export all secrets as env vars for the start script
-            export DB_URL="${{ secrets.DB_URL }}"
-            export DB_USERNAME="${{ secrets.DB_USERNAME }}"
-            export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
-            export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
-            export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
-            export GIT_CLIENT_ID="${{ secrets.GIT_CLIENT_ID }}"
-            export GIT_CLIENT_SECRET="${{ secrets.GIT_CLIENT_SECRET }}"
-            export CLOUDINARY_CLOUD_NAME="${{ secrets.CLOUDINARY_CLOUD_NAME }}"
-            export CLOUDINARY_API_KEY="${{ secrets.CLOUDINARY_API_KEY }}"
-            export CLOUDINARY_API_SECRET="${{ secrets.CLOUDINARY_API_SECRET }}"
-            export RAZORPAY_KEY_ID="${{ secrets.RAZORPAY_KEY_ID }}"
-            export RAZORPAY_KEY_SECRET="${{ secrets.RAZORPAY_KEY_SECRET }}"
-            export EMAILJS_PUBLIC_KEY="${{ secrets.EMAILJS_PUBLIC_KEY }}"
-            export EMAILJS_SERVICE_ID="${{ secrets.EMAILJS_SERVICE_ID }}"
-            export EMAILJS_TEMPLATE_ID="${{ secrets.EMAILJS_TEMPLATE_ID }}"
-
-            # setsid fully detaches from the SSH session's process group
-            setsid /home/ubuntu/app/start.sh &
-
-            sleep 5
-            echo "Deployed successfully!"
+            sleep 6
+            # Verify process actually started
+            if pgrep -f "app.jar" > /dev/null; then
+              echo "✅ Deployed successfully! Process is running."
+            else
+              echo "❌ Process failed to start. Check /home/ubuntu/app/app.log"
+              tail -20 /home/ubuntu/app/app.log
+              exit 1
+            fi
